@@ -5,88 +5,60 @@ import java.math.RoundingMode;
 
 public class CompanyMainTwo {
 
-	private static final int ANZ_ZYKLEN = 1000;
+	public static final int ANZ_ZYKLEN = 135;
 
-	private static final BigDecimal PROGNOSE = new BigDecimal("10000000");
+	public static final BigDecimal PROGNOSE = new BigDecimal("10000000");
 
-	private static final BigDecimal EK_MAT_X = new BigDecimal("200");
+	public static final BigDecimal MAX_PERCENT = new BigDecimal("100");
 
-	private static final BigDecimal EK_MAT_Y = new BigDecimal("300");
-
-	private static final BigDecimal FIX_KOSTEN = new BigDecimal("1000000");
-
-	private static final BigDecimal ANZ_PRODUKTE_ZYKLUS = new BigDecimal("100000");
-
-	private static final BigDecimal AUFSCHLAG_0 = new BigDecimal("0.2");
-
-	private static final BigDecimal PAS = new BigDecimal("0.001");
-
-	private static final BigDecimal MAX_PERCENT = new BigDecimal("100");
-
-	private BigDecimal[] nachfrage = new BigDecimal[ANZ_ZYKLEN];
-
-	private BigDecimal[] saettigung = new BigDecimal[ANZ_ZYKLEN];
-
-	private BigDecimal[] ekMat = new BigDecimal[ANZ_ZYKLEN];
-
-	private BigDecimal[] pkPreis = new BigDecimal[ANZ_ZYKLEN];
-
-	private BigDecimal[] vkPreis = new BigDecimal[ANZ_ZYKLEN];
-
-	private BigDecimal sumProdukte = BigDecimal.ZERO;
-
-	private BigDecimal pa = BigDecimal.ZERO;
-
-	private int currentZyklus = 0;
-
-	private boolean stop = false;
-
-	private BigDecimal calcSaettigung() {
-		final BigDecimal multiply = sumProdukte.multiply(new BigDecimal("100"));
-		final BigDecimal divide = multiply.divide(PROGNOSE, 4, RoundingMode.HALF_UP);
-		return divide;
-	}
-
-	private BigDecimal calcNachfrage(BigDecimal pa, BigDecimal saettigung) {
-		BigDecimal a = BigDecimal.ONE.add(AUFSCHLAG_0);
-		final BigDecimal add = a.add(pa);
-		final BigDecimal multiply = MAX_PERCENT.multiply(add);
-		final BigDecimal divide = multiply.divide(a, RoundingMode.HALF_DOWN);
-		return divide.subtract(saettigung);
-	}
-
-	private BigDecimal calcProdKost() {
-		BigDecimal varKost = generateRandomBigDecimalFromRange(EK_MAT_X, EK_MAT_Y);
-		return varKost.add(FIX_KOSTEN.divide(ANZ_PRODUKTE_ZYKLUS));
-	}
-
-	private BigDecimal calcPreis(BigDecimal pa) {
-		BigDecimal nachfrage = calcNachfrage(pa, calcSaettigung());
-		if (nachfrage.compareTo(BigDecimal.ZERO) <= 0) {
-			this.pa = this.pa.add(PAS);
-			calcPreis(this.pa);
-		} else if (AUFSCHLAG_0.subtract(this.pa).compareTo(BigDecimal.ZERO) <= 0) {
-			stop = true;
-			return BigDecimal.ZERO;
-		} else if (nachfrage.compareTo(MAX_PERCENT) > 0) {
-			this.pa = this.pa.subtract(PAS);
-			calcPreis(this.pa);
-		}
-		pkPreis[currentZyklus] = calcProdKost();
-		BigDecimal preisAenderung = BigDecimal.ONE.add(AUFSCHLAG_0.subtract(this.pa));
-		return EK_MAT_Y.multiply(preisAenderung).setScale(2, RoundingMode.HALF_DOWN);
-	}
+	public int currentZyklus = 0;
 
 	private void simulate() {
+		Company c1 = new Company(this, new BigDecimal("300"), new BigDecimal("450"), new BigDecimal("4000000"), new BigDecimal("1000000"), new BigDecimal("0.2"), new BigDecimal("0.0001"));
+		Company c2 = new Company(this, new BigDecimal("200"), new BigDecimal("300"), new BigDecimal("2500000"), new BigDecimal("1000000"), new BigDecimal("0.1"), new BigDecimal("0.0001"));
 		for (int i = 0; i < ANZ_ZYKLEN; i++) {
-			final BigDecimal calcPreis = calcPreis(this.pa);
-			final BigDecimal gewinn = calcPreis.subtract(pkPreis[i]);
-			System.out.println("Zyklus: " + i + "\t | VK Preis: " + calcPreis + "\t | PK Preis: " + pkPreis[i] + "\t | Gewinn: "
-					+ gewinn + "\t | Preisaenderung: " + this.pa);
-			sumProdukte = sumProdukte.add(ANZ_PRODUKTE_ZYKLUS);
+			BigDecimal marketShare;
+			if(i == 0) {
+				marketShare = generateRandomBigDecimalFromRange(new BigDecimal("0.4"), new BigDecimal("0.6"));
+			}else {
+				marketShare = calculateFromVK(c1.getCalcPreis()[currentZyklus - 1], c2.getCalcPreis()[currentZyklus - 1]);
+			}
+			c1.simulate(marketShare);
+			c2.simulate(BigDecimal.ONE.subtract(marketShare));
+			System.out.println("Woche: " + currentZyklus);
+			System.out.println("C1 | Preis p.P.: " + c1.getCalcPreis()[currentZyklus] + "\t | Kosten p.P.: "
+					+ c1.getPkPreis()[currentZyklus] + "\t | Gewinn p.P.: " + c1.getGewinn()[currentZyklus] + "\t | Verk. p.W: " + c1.getVerkaufteProd()[currentZyklus]
+					+ "\t | Ges.Gewinn: " + c1.getGesGew() + "\t | Preisaenderung: " + c1.getPa());
+			System.out.println("C2 | Preis p.P.: " + c2.getCalcPreis()[currentZyklus] + "\t | Kosten p.P.: "
+					+ c2.getPkPreis()[currentZyklus] + "\t | Gewinn p.P.: " + c2.getGewinn()[currentZyklus] + "\t | Verk. p.W: " + c2.getVerkaufteProd()[currentZyklus]
+					+ "\t | Ges.Gewinn: " + c2.getGesGew() + "\t | Preisaenderung: " + c2.getPa());
+			System.out.println("=========================================================================================================================================================");
 			currentZyklus++;
-			if(gewinn.compareTo(new BigDecimal("-50")) <= 0)
-				break;
+		}
+	}
+
+	private BigDecimal calculateFromVK(BigDecimal vk1, BigDecimal vk2) {
+		if(vk1.compareTo(vk2) <= 0){
+			return calcMarketShare(vk1, vk2);
+		} else {
+			return BigDecimal.ONE.subtract(calcMarketShare(vk2, vk1));
+		}
+	}
+
+	private BigDecimal calcMarketShare(BigDecimal small, BigDecimal big) {
+		BigDecimal diff = big.divide(small, 5, RoundingMode.HALF_EVEN);
+		if(diff.compareTo(new BigDecimal("1.005")) <=0){
+			return new BigDecimal("0.5");
+		} else if(diff.compareTo(new BigDecimal("1.1")) <=0){
+			return new BigDecimal("0.6");
+		} else if(diff.compareTo(new BigDecimal("1.2")) <=0){
+			return new BigDecimal("0.7");
+		} else if(diff.compareTo(new BigDecimal("1.4")) <=0){
+			return new BigDecimal("0.8");
+		} else if(diff.compareTo(new BigDecimal("1.8")) <=0){
+			return new BigDecimal("0.9");
+		} else{
+			return new BigDecimal("0.95");
 		}
 	}
 
