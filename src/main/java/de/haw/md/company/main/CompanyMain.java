@@ -33,14 +33,14 @@ public class CompanyMain {
 
 	private void calcAngebot() {
 		if (currentZyklus == 0) 
-			angebot = new ArrayList<>();
+			angebot = new ArrayList<BigDecimal>();
 		angebot.add(lagerbestand.get(currentZyklus));
 		
 	}
 
 	private void calcProduktion() {
 		if (currentZyklus == 0) {
-			produktion = new ArrayList<>();
+			produktion = new ArrayList<BigDecimal>();
 			produktion.add(prodCap);
 		} else {
 			final BigDecimal nachfrageInProzent = nachfrage.get(currentZyklus - 1).divide(new BigDecimal("100"));
@@ -57,7 +57,7 @@ public class CompanyMain {
 
 	private void calcNachfrage() {
 		if (currentZyklus == 0) {
-			nachfrage = new ArrayList<>();
+			nachfrage = new ArrayList<BigDecimal>();
 			nachfrage.add(new BigDecimal("100"));
 		} else {
 			final BigDecimal subtract = new BigDecimal("100").subtract(saettigung.get(currentZyklus - 1));
@@ -74,7 +74,7 @@ public class CompanyMain {
 
 	private void calcSaettigung() {
 		if (currentZyklus == 0) {
-			saettigung = new ArrayList<>();
+			saettigung = new ArrayList<BigDecimal>();
 			saettigung.add(BigDecimal.ZERO.setScale(4));
 		} else {
 			BigDecimal sumVerkauft = BigDecimal.ZERO;
@@ -92,7 +92,7 @@ public class CompanyMain {
 
 	private void calcLager() {
 		if (currentZyklus == 0) {
-			lagerbestand = new ArrayList<>();
+			lagerbestand = new ArrayList<BigDecimal>();
 			lagerbestand.add(prodCap);
 		} else {
 			if (lagerbestand.get(currentZyklus - 1).compareTo(lagerProdCap) >= 0) {
@@ -112,7 +112,7 @@ public class CompanyMain {
 	
 	private void simSale(){
 		if(currentZyklus == 0)
-			verkaufteProdukte = new ArrayList<>();
+			verkaufteProdukte = new ArrayList<BigDecimal>();
 		verkaufteProdukte.add(lagerbestand.get(currentZyklus).multiply(nachfrage.get(currentZyklus).divide(new BigDecimal("100"))).setScale(0, RoundingMode.HALF_DOWN));
 		lagerbestand.set(currentZyklus, lagerbestand.get(currentZyklus).subtract(verkaufteProdukte.get(currentZyklus)));
 		
