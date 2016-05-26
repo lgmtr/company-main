@@ -19,9 +19,9 @@ public class Company {
 	private BigDecimal pas;
 
 	private BigDecimal maxPK;
-	
+
 	private CompanyMainTwo cmt;
-	
+
 	private BigDecimal currentMarketShare;
 
 	private BigDecimal[] verkaufteProd = new BigDecimal[CompanyMainTwo.ANZ_ZYKLEN];
@@ -36,7 +36,10 @@ public class Company {
 
 	private BigDecimal pa = BigDecimal.ZERO;
 
-	public Company(CompanyMainTwo cmt, BigDecimal ekMatX, BigDecimal ekMatY, BigDecimal fixKosten, BigDecimal anzProdZyk, BigDecimal aufschlag0, BigDecimal pas) {
+	private BigDecimal prodStufen;
+
+	public Company(CompanyMainTwo cmt, BigDecimal ekMatX, BigDecimal ekMatY, BigDecimal fixKosten, BigDecimal anzProdZyk, BigDecimal aufschlag0,
+			BigDecimal pas, BigDecimal prodStufen) {
 		this.cmt = cmt;
 		this.ekMatX = ekMatX;
 		this.ekMatY = ekMatY;
@@ -44,17 +47,18 @@ public class Company {
 		this.anzProdZyk = anzProdZyk;
 		this.aufschlag0 = aufschlag0;
 		this.pas = pas;
+		this.prodStufen = prodStufen;
 		this.maxPK = ekMatY.add(fixKosten.divide(anzProdZyk, 2, RoundingMode.HALF_UP));
 	}
 
 	private BigDecimal calcNachfrage(BigDecimal pa) {
 		if (cmt.currentZyklus == 0)
 			return CompanyMainTwo.MAX_PERCENT;
-		final BigDecimal divide = BigDecimal.ONE.divide(new BigDecimal(cmt.currentZyklus).multiply(new BigDecimal("2")), 20, RoundingMode.HALF_DOWN);
+		final BigDecimal divide = BigDecimal.ONE.divide(new BigDecimal(cmt.currentZyklus).multiply(new BigDecimal("1.8")), 20, RoundingMode.HALF_DOWN);
 		final BigDecimal multiply = divide.multiply(CompanyMainTwo.MAX_PERCENT, MathContext.DECIMAL128);
 		BigDecimal a = BigDecimal.ONE.add(aufschlag0);
 		final BigDecimal add = a.add(pa);
-		final BigDecimal multiply2 = multiply.multiply(add, MathContext.DECIMAL128);
+		final BigDecimal multiply2 = multiply.multiply(add.multiply(new BigDecimal("2")), MathContext.DECIMAL128);
 		return multiply2;
 	}
 
@@ -62,7 +66,14 @@ public class Company {
 		BigDecimal varKost = CompanyMainTwo.generateRandomBigDecimalFromRange(ekMatX, ekMatY);
 		if (topProd)
 			return varKost.add(fixKosten.divide(anzProdZyk, RoundingMode.HALF_UP));
-		return varKost.add(fixKosten.divide(prognoseVerkauf, RoundingMode.HALF_UP));
+		final BigDecimal prodMprodStufe = prognoseVerkauf.multiply(prodStufen);
+		final BigDecimal divideMaxProd = prodMprodStufe.divide(anzProdZyk, 0, RoundingMode.DOWN);
+		final BigDecimal addOne = divideMaxProd.add(BigDecimal.ONE);
+		final BigDecimal multiplyWithFixKost = fixKosten.multiply(addOne);
+		BigDecimal fixKost = multiplyWithFixKost.divide(prodStufen, 0, RoundingMode.UP);
+		// return varKost.add(fixKosten.divide(prognoseVerkauf,
+		// RoundingMode.HALF_UP));
+		return varKost.add(fixKost.divide(prognoseVerkauf, RoundingMode.HALF_UP));
 	}
 
 	private BigDecimal calcPreis(BigDecimal pa) {
@@ -72,9 +83,9 @@ public class Company {
 		boolean stop = false;
 		do {
 			nachfrage = calcNachfrage(pa);
-			final BigDecimal einfProgVerk = CompanyMainTwo.PROGNOSE.multiply(nachfrage.divide(CompanyMainTwo.MAX_PERCENT, 20, RoundingMode.HALF_DOWN)).setScale(0,
-					RoundingMode.HALF_DOWN);
-			prognoseVerkauf = einfProgVerk.multiply(currentMarketShare);
+			final BigDecimal einfProgVerk = CompanyMainTwo.PROGNOSE.multiply(nachfrage.divide(CompanyMainTwo.MAX_PERCENT, 20, RoundingMode.HALF_DOWN))
+					.setScale(0, RoundingMode.HALF_DOWN);
+			prognoseVerkauf = einfProgVerk.multiply(currentMarketShare).setScale(0, RoundingMode.HALF_DOWN);
 			if (prognoseVerkauf.compareTo(anzProdZyk) > 0) {
 				pkPreis[cmt.currentZyklus] = calcProdKost(true, prognoseVerkauf);
 				BigDecimal preisAenderung = BigDecimal.ONE.add(aufschlag0.subtract(this.pa));
@@ -101,10 +112,14 @@ public class Company {
 		this.currentMarketShare = currentMarketShare;
 		calcPreis[cmt.currentZyklus] = calcPreis(this.pa);
 		gewinn[cmt.currentZyklus] = calcPreis[cmt.currentZyklus].subtract(pkPreis[cmt.currentZyklus]);
-		gesGew = gesGew.add(gewinn[cmt.currentZyklus].multiply(verkaufteProd[cmt.currentZyklus]));
-//		System.out.println("Woche: " + cmt.currentZyklus + "\t | Preis p.P.: " + calcPreis[cmt.currentZyklus] + "\t | Kosten p.P.: "
-//				+ pkPreis[cmt.currentZyklus] + "\t | Gewinn p.P.: " + gewinn[cmt.currentZyklus] + "\t | Verk. p.W: " + verkaufteProd[cmt.currentZyklus]
-//				+ "\t | Ges.Gewinn: " + gesGew + "\t | Preisaenderung: " + this.pa);
+		gesGew = gesGew.add(gewinn[cmt.currentZyklus].multiply(verkaufteProd[cmt.currentZyklus])).setScale(2, RoundingMode.HALF_DOWN);
+		// System.out.println("Woche: " + cmt.currentZyklus +
+		// "\t | Preis p.P.: " + calcPreis[cmt.currentZyklus] +
+		// "\t | Kosten p.P.: "
+		// + pkPreis[cmt.currentZyklus] + "\t | Gewinn p.P.: " +
+		// gewinn[cmt.currentZyklus] + "\t | Verk. p.W: " +
+		// verkaufteProd[cmt.currentZyklus]
+		// + "\t | Ges.Gewinn: " + gesGew + "\t | Preisaenderung: " + this.pa);
 	}
 
 	public BigDecimal[] getVerkaufteProd() {
