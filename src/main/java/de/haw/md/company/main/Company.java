@@ -54,11 +54,10 @@ public class Company {
 	private BigDecimal calcNachfrage(BigDecimal pa) {
 		if (cmt.currentZyklus == 0)
 			return CompanyMainTwo.MAX_PERCENT;
-		final BigDecimal divide = BigDecimal.ONE.divide(new BigDecimal(cmt.currentZyklus).multiply(new BigDecimal("1.8")), 20, RoundingMode.HALF_DOWN);
+		final BigDecimal divide = BigDecimal.ONE.divide(new BigDecimal(cmt.currentZyklus).multiply(new BigDecimal("3")), 20, RoundingMode.HALF_DOWN);
 		final BigDecimal multiply = divide.multiply(CompanyMainTwo.MAX_PERCENT, MathContext.DECIMAL128);
-		BigDecimal a = BigDecimal.ONE.add(aufschlag0);
-		final BigDecimal add = a.add(pa);
-		final BigDecimal multiply2 = multiply.multiply(add.multiply(new BigDecimal("2")), MathContext.DECIMAL128);
+		BigDecimal a = BigDecimal.ONE.add(pa);
+		final BigDecimal multiply2 = multiply.multiply(a.multiply(new BigDecimal("2")), MathContext.DECIMAL128);
 		return multiply2;
 	}
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CompanyMainTwo {
 
-	public static final int ANZ_ZYKLEN = 168;
+	public static final int ANZ_ZYKLEN = 430;
 
 	public static final BigDecimal PROGNOSE = new BigDecimal("10000000");
 
@@ -27,15 +27,15 @@ public class CompanyMainTwo {
 
 	public void simulate() {
 		c1 = new Company(this, new BigDecimal("280"), new BigDecimal("320"), new BigDecimal("17500000"), new BigDecimal("1000000"), new BigDecimal("0.32"),
-				new BigDecimal("0.0001"), new BigDecimal("3"));
+				new BigDecimal("0.001"), new BigDecimal("15"));
 		c2 = new Company(this, new BigDecimal("220"), new BigDecimal("260"), new BigDecimal("13500000"), new BigDecimal("1000000"), new BigDecimal("0.33"),
-				new BigDecimal("0.0001"), new BigDecimal("5"));
+				new BigDecimal("0.001"), new BigDecimal("25"));
 		c3 = new Company(this, new BigDecimal("280"), new BigDecimal("320"), new BigDecimal("17500000"), new BigDecimal("1000000"), new BigDecimal("0.31"),
-				new BigDecimal("0.0001"), new BigDecimal("3"));
+				new BigDecimal("0.001"), new BigDecimal("15"));
 		c4 = new Company(this, new BigDecimal("220"), new BigDecimal("250"), new BigDecimal("20500000"), new BigDecimal("1000000"), new BigDecimal("0.37"),
-				new BigDecimal("0.0001"), new BigDecimal("8"));
+				new BigDecimal("0.001"), new BigDecimal("40"));
 		c5 = new Company(this, new BigDecimal("290"), new BigDecimal("320"), new BigDecimal("17500000"), new BigDecimal("1000000"), new BigDecimal("0.35"),
-				new BigDecimal("0.0001"), new BigDecimal("5"));
+				new BigDecimal("0.001"), new BigDecimal("25"));
 		for (int i = 0; i < ANZ_ZYKLEN; i++) {
 			List<BigDecimal> marketShare;
 			if (i == 0) {

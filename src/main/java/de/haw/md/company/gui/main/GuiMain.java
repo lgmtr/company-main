@@ -18,6 +18,8 @@ public class GuiMain extends Application {
 	private static final double SCREEN_Y = 900;
 	
 	private CompanyMainTwo cmt;
+	
+	private static final int START_DIAGRAMM = 150;
 
 	private void init(Stage primaryStage) {
 		cmt = new CompanyMainTwo();
@@ -37,7 +39,7 @@ public class GuiMain extends Application {
 
 	@SuppressWarnings("unchecked")
 	private AreaChart<Number, Number> companyChart(){
-		final NumberAxis xAxis = new NumberAxis(1, 170, 5);
+		final NumberAxis xAxis = new NumberAxis(START_DIAGRAMM, CompanyMainTwo.ANZ_ZYKLEN, 5);
 		final NumberAxis yAxis = new NumberAxis();
 		final AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
 		ac.setTitle("Gewinn beider Unternehmen");
@@ -76,10 +78,10 @@ public class GuiMain extends Application {
 	
 	@SuppressWarnings("unchecked")
 	private AreaChart<Number, Number> companyPieceProdChart(){
-		final NumberAxis xAxis = new NumberAxis(1, 170, 5);
+		final NumberAxis xAxis = new NumberAxis(1, CompanyMainTwo.ANZ_ZYKLEN, 50);
 		final NumberAxis yAxis = new NumberAxis();
 		final AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
-		ac.setTitle("Artikelgewinn");
+		ac.setTitle("Verkaufte Produkte (p.W.)");
 		ac.setMinWidth(SCREEN_X/2);
 		ac.setMinHeight(SCREEN_Y/2);
 		ac.relocate(SCREEN_X/2, 0);
@@ -106,7 +108,7 @@ public class GuiMain extends Application {
 	
 	@SuppressWarnings("unchecked")
 	private AreaChart<Number, Number> companyPieceWinChart(){
-		final NumberAxis xAxis = new NumberAxis(1, 170, 5);
+		final NumberAxis xAxis = new NumberAxis(START_DIAGRAMM, CompanyMainTwo.ANZ_ZYKLEN, 5);
 		final NumberAxis yAxis = new NumberAxis();
 		final AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
 		ac.setTitle("Artikelgewinn");
@@ -136,7 +138,7 @@ public class GuiMain extends Application {
 	
 	@SuppressWarnings("unchecked")
 	private AreaChart<Number, Number> companyPiecePriceChart(){
-		final NumberAxis xAxis = new NumberAxis(1, 170, 10);
+		final NumberAxis xAxis = new NumberAxis(START_DIAGRAMM, CompanyMainTwo.ANZ_ZYKLEN, 10);
 		final NumberAxis yAxis = new NumberAxis(230,490, 10);
 		final AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
 		ac.setTitle("Artikelpreis");
