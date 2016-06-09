@@ -28,15 +28,23 @@ public class Company {
 
 	private BigDecimal[] pkPreis = new BigDecimal[CompanyMainTwo.ANZ_ZYKLEN];
 
-	private BigDecimal gesGew = BigDecimal.ZERO;
+	private BigDecimal[] gesGew = new BigDecimal[CompanyMainTwo.ANZ_ZYKLEN];
 
 	private BigDecimal[] calcPreis = new BigDecimal[CompanyMainTwo.ANZ_ZYKLEN];
 
 	private BigDecimal[] gewinn = new BigDecimal[CompanyMainTwo.ANZ_ZYKLEN];
 
 	private BigDecimal pa = BigDecimal.ZERO;
+	
+	private BigDecimal paArray[] = new BigDecimal[CompanyMainTwo.ANZ_ZYKLEN];
 
 	private BigDecimal prodStufen;
+
+	// private BigDecimal stock;
+	//
+	// private BigDecimal stockCost;
+
+	private boolean prodStop = false;
 
 	public Company(CompanyMainTwo cmt, BigDecimal ekMatX, BigDecimal ekMatY, BigDecimal fixKosten, BigDecimal anzProdZyk, BigDecimal aufschlag0,
 			BigDecimal pas, BigDecimal prodStufen) {
@@ -54,7 +62,7 @@ public class Company {
 	private BigDecimal calcNachfrage(BigDecimal pa) {
 		if (cmt.currentZyklus == 0)
 			return CompanyMainTwo.MAX_PERCENT;
-		final BigDecimal divide = BigDecimal.ONE.divide(new BigDecimal(cmt.currentZyklus).multiply(new BigDecimal("3")), 20, RoundingMode.HALF_DOWN);
+		final BigDecimal divide = BigDecimal.ONE.divide(new BigDecimal(cmt.currentZyklus).multiply(new BigDecimal("1")), 20, RoundingMode.HALF_DOWN);
 		final BigDecimal multiply = divide.multiply(CompanyMainTwo.MAX_PERCENT, MathContext.DECIMAL128);
 		BigDecimal a = BigDecimal.ONE.add(pa);
 		final BigDecimal multiply2 = multiply.multiply(a.multiply(new BigDecimal("2")), MathContext.DECIMAL128);
@@ -70,8 +78,6 @@ public class Company {
 		final BigDecimal addOne = divideMaxProd.add(BigDecimal.ONE);
 		final BigDecimal multiplyWithFixKost = fixKosten.multiply(addOne);
 		BigDecimal fixKost = multiplyWithFixKost.divide(prodStufen, 0, RoundingMode.UP);
-		// return varKost.add(fixKosten.divide(prognoseVerkauf,
-		// RoundingMode.HALF_UP));
 		return varKost.add(fixKost.divide(prognoseVerkauf, RoundingMode.HALF_UP));
 	}
 
@@ -95,30 +101,41 @@ public class Company {
 				BigDecimal preisAenderung = BigDecimal.ONE.add(aufschlag0.subtract(this.pa));
 				currentVK = maxPK.multiply(preisAenderung).setScale(2, RoundingMode.HALF_DOWN);
 				final BigDecimal abb = this.pa.subtract(aufschlag0);
-				if (abb.compareTo(new BigDecimal("0.2")) >= 0 || currentVK.compareTo(pkPreis[cmt.currentZyklus].subtract(BigDecimal.TEN)) > 0) {
+				if (abb.compareTo(new BigDecimal("0.5")) >= 0) {
+					prodStop = true;
 					stop = true;
-				} else if (currentVK.compareTo(pkPreis[cmt.currentZyklus].subtract(BigDecimal.TEN)) <= 0) {
+				} else if (currentVK.compareTo(pkPreis[cmt.currentZyklus].subtract(BigDecimal.TEN)) > 0) {
+					stop = true;
+				} else if (currentVK.compareTo(pkPreis[cmt.currentZyklus].subtract(new BigDecimal("5"))) <= 0) {
 					this.pa = this.pa.add(pas);
 				}
 			}
 
 		} while (!stop);
-		verkaufteProd[cmt.currentZyklus] = prognoseVerkauf;
+		if(prodStop){
+			verkaufteProd[cmt.currentZyklus] = BigDecimal.ZERO;
+		}else
+			verkaufteProd[cmt.currentZyklus] = prognoseVerkauf;
 		return currentVK;
 	}
 
 	public void simulate(BigDecimal currentMarketShare) {
-		this.currentMarketShare = currentMarketShare;
-		calcPreis[cmt.currentZyklus] = calcPreis(this.pa);
-		gewinn[cmt.currentZyklus] = calcPreis[cmt.currentZyklus].subtract(pkPreis[cmt.currentZyklus]);
-		gesGew = gesGew.add(gewinn[cmt.currentZyklus].multiply(verkaufteProd[cmt.currentZyklus])).setScale(2, RoundingMode.HALF_DOWN);
-		// System.out.println("Woche: " + cmt.currentZyklus +
-		// "\t | Preis p.P.: " + calcPreis[cmt.currentZyklus] +
-		// "\t | Kosten p.P.: "
-		// + pkPreis[cmt.currentZyklus] + "\t | Gewinn p.P.: " +
-		// gewinn[cmt.currentZyklus] + "\t | Verk. p.W: " +
-		// verkaufteProd[cmt.currentZyklus]
-		// + "\t | Ges.Gewinn: " + gesGew + "\t | Preisaenderung: " + this.pa);
+		if (!prodStop) {
+			this.currentMarketShare = currentMarketShare;
+			calcPreis[cmt.currentZyklus] = calcPreis(this.pa);
+			gewinn[cmt.currentZyklus] = calcPreis[cmt.currentZyklus].subtract(pkPreis[cmt.currentZyklus]);
+			if(cmt.currentZyklus > 0) {
+				gesGew[cmt.currentZyklus] = gesGew[cmt.currentZyklus - 1].add(gewinn[cmt.currentZyklus].multiply(verkaufteProd[cmt.currentZyklus])).setScale(2, RoundingMode.HALF_DOWN);
+			} else {
+				gesGew[0] = BigDecimal.ZERO;
+			}
+		} else {
+			calcPreis[cmt.currentZyklus] = BigDecimal.ZERO;
+			gewinn[cmt.currentZyklus] = BigDecimal.ZERO;
+			pkPreis[cmt.currentZyklus] = BigDecimal.ZERO;
+			gesGew[cmt.currentZyklus] = gesGew[cmt.currentZyklus - 1];
+		}
+		this.paArray[cmt.currentZyklus] = this.pa;
 	}
 
 	public BigDecimal[] getVerkaufteProd() {
@@ -129,7 +146,7 @@ public class Company {
 		return pkPreis;
 	}
 
-	public BigDecimal getGesGew() {
+	public BigDecimal[] getGesGew() {
 		return gesGew;
 	}
 
@@ -143,6 +160,19 @@ public class Company {
 
 	public BigDecimal getPa() {
 		return pa;
+	}
+
+	public boolean isProdStop() {
+		return prodStop;
+	}
+
+	public void setVerkaufteProd(int currentZyklus, BigDecimal zero) {
+		this.verkaufteProd[currentZyklus] = zero;
+		
+	}
+
+	public BigDecimal[] getPaArray() {
+		return paArray;
 	}
 
 }
