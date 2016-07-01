@@ -3,6 +3,58 @@
   <groupId>de.haw.md.company</groupId>
   <artifactId>company-main</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+		<commons-lang>2.4</commons-lang>
+		<com.fasterxml.jackson.core>2.0.0</com.fasterxml.jackson.core>
+		<com.typesafe.akka>2.4-M2</com.typesafe.akka>
+		<joda-time.version>2.9.4</joda-time.version>
+		<org.testng.version>6.9.10</org.testng.version>
+		<net.sf.opencsv>2.3</net.sf.opencsv>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>${net.sf.opencsv}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>${org.testng.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>${joda-time.version}</version>
+		</dependency>
+
+		<!-- Akka - Framework -->
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor_2.11</artifactId>
+			<version>${com.typesafe.akka}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-cluster-tools_2.11</artifactId>
+			<version>${com.typesafe.akka}</version>
+		</dependency>
+
+		<!-- JSON -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${com.fasterxml.jackson.core}</version>
+		</dependency>
+	</dependencies>
+  
   <build>
 		<plugins>
 			<plugin>
