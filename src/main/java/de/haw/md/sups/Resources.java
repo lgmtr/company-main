@@ -21,7 +21,6 @@ import au.com.bytecode.opencsv.CSVReader;
 public class Resources {
 
 	private Map<DateTime, BigDecimal> oilPrice = new HashMap<>();
-
 	private Map<DateTime, BigDecimal> aluminiumPrice = new HashMap<>();
 	private Map<DateTime, BigDecimal> goldPrice = new HashMap<>();
 	private Map<DateTime, BigDecimal> nickelPrice = new HashMap<>();
@@ -41,6 +40,9 @@ public class Resources {
 		readPrice("Silberpreis.csv", silberPrice, false);
 		readPrice("Zinnpreis.csv", zinnPrice, false);
 		readPrice("Kupferpreis.csv", copperPrice, false);
+		for (Map<DateTime, BigDecimal> resourceElement : getListOfResources()) {
+			resourceElement.put(DateTime.now(), ResourceCalc.nextRandomStockPrice(resourceElement));
+		}
 	}
 
 	public List<Map<DateTime, BigDecimal>> getListOfResources() {
@@ -61,7 +63,7 @@ public class Resources {
 				if (counter != 0) {
 					BigDecimal bigDecimal;
 					try {
-						final BigDecimal price = new BigDecimal(nextLine[1]);
+						final BigDecimal price = StaticVariables.convertToBigDecimal(nextLine[1]);
 						if (usPrices) {
 							bigDecimal = price.multiply(StaticVariables.US_TO_EURO).setScale(2, RoundingMode.HALF_UP);
 						} else {

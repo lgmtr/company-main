@@ -37,15 +37,15 @@ public class CompanyMobile extends UntypedActor {
 	private BigDecimal plasticPrice;
 	private BigDecimal electronicPartPrice;
 
-	private static final BigDecimal POP_PLASTIC_IN_G = new BigDecimal("55.9");
-	private static final BigDecimal POP_COPPER_IN_G = new BigDecimal("7.67");
-	private static final BigDecimal POP_ALUMINIUM_IN_G = new BigDecimal("1.3");
-	private static final BigDecimal POP_NICKEL_IN_G = new BigDecimal("1.3");
-	private static final BigDecimal POP_ZINN_IN_G = new BigDecimal("1.3");
-	private static final BigDecimal POP_GOLD_IN_G = new BigDecimal("0.0005");
-	private static final BigDecimal POP_SILBER_IN_G = new BigDecimal("0.0005");
-	private static final BigDecimal POP_PLATIN_IN_G = new BigDecimal("0.0005");
-	private static final BigDecimal POP_PALLADIUM_IN_G = new BigDecimal("0.0005");
+	private static final BigDecimal POP_PLASTIC_IN_G = StaticVariables.convertToBigDecimal("55.9");
+	private static final BigDecimal POP_COPPER_IN_G = StaticVariables.convertToBigDecimal("7.67");
+	private static final BigDecimal POP_ALUMINIUM_IN_G = StaticVariables.convertToBigDecimal("1.3");
+	private static final BigDecimal POP_NICKEL_IN_G = StaticVariables.convertToBigDecimal("1.3");
+	private static final BigDecimal POP_ZINN_IN_G = StaticVariables.convertToBigDecimal("1.3");
+	private static final BigDecimal POP_GOLD_IN_G = StaticVariables.convertToBigDecimal("0.0005");
+	private static final BigDecimal POP_SILBER_IN_G = StaticVariables.convertToBigDecimal("0.0005");
+	private static final BigDecimal POP_PLATIN_IN_G = StaticVariables.convertToBigDecimal("0.0005");
+	private static final BigDecimal POP_PALLADIUM_IN_G = StaticVariables.convertToBigDecimal("0.0005");
 
 	private BigDecimal costManHour;
 	private BigDecimal fixCost;
@@ -78,6 +78,7 @@ public class CompanyMobile extends UntypedActor {
 			} catch (UnrecognizedPropertyException e) {
 			}
 			if (((String) msg).contains("company")) {
+				try{
 				MarketResponseMsgModel mrmmInput = om.readValue((String) msg, MarketResponseMsgModel.class);
 				setPlasticPrices(mrmmInput);
 				if (mrmmInput.getCompany().equals(supplier))
@@ -98,6 +99,7 @@ public class CompanyMobile extends UntypedActor {
 						publisher.tell(om.writeValueAsString(mrmm), getSelf());
 					}
 				}
+				}catch(UnrecognizedPropertyException e){}
 			}
 		}
 	}
@@ -145,36 +147,36 @@ public class CompanyMobile extends UntypedActor {
 
 	private void setPlasticPrices(MarketResponseMsgModel mrmm) {
 		if (mrmm.getType().equals("Plastic"))
-			plasticPrice = new BigDecimal(mrmm.getValue());
+			plasticPrice = StaticVariables.convertToBigDecimal(mrmm.getValue());
 		if (mrmm.getType().equals("Electronic_Part"))
-			electronicPartPrice = new BigDecimal(mrmm.getValue());
+			electronicPartPrice = StaticVariables.convertToBigDecimal(mrmm.getValue());
 	}
 
 	private void setResourcePrices(ResourceMsgModel rmm) {
 		switch (rmm.getType()) {
 		case "Copper":
-			copperPrice = new BigDecimal(rmm.getValue());
+			copperPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Aluminium":
-			aluminiumPrice = new BigDecimal(rmm.getValue());
+			aluminiumPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Gold":
-			goldPrice = new BigDecimal(rmm.getValue());
+			goldPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Nickel":
-			nickelPrice = new BigDecimal(rmm.getValue());
+			nickelPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Palladium":
-			palladiumPrice = new BigDecimal(rmm.getValue());
+			palladiumPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Platin":
-			platinPrice = new BigDecimal(rmm.getValue());
+			platinPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Silber":
-			silberPrice = new BigDecimal(rmm.getValue());
+			silberPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Zinn":
-			zinnPrice = new BigDecimal(rmm.getValue());
+			zinnPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		}
 

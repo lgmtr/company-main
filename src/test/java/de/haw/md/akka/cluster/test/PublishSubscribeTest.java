@@ -20,7 +20,7 @@ public class PublishSubscribeTest {
 
 	private final static String CHANNEL = "MarketSim";
 
-	private final long TEST_TIME = 12000;
+	private final long TEST_TIME = 5000;
 
 	@Test
 	public void pubSubTest() {
@@ -39,39 +39,75 @@ public class PublishSubscribeTest {
 						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
 						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.5"), new BigDecimal("2.5")),
 						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.08"), new BigDecimal("1.12"))), "Company_ElectroPart_2");
-		system.actorOf(Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_1",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_1",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_1");
-		system.actorOf(Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_2",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_2",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_2");
-		system.actorOf(Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_3",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_1",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_3");
-		system.actorOf(Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_4",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_2",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_4");
-		system.actorOf(Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_5",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_1",
-				CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_5");
+		system.actorOf(
+				Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_1",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_1",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_1");
+		system.actorOf(
+				Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_2",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_2",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_2");
+		system.actorOf(
+				Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_3",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_1",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_3");
+		system.actorOf(
+				Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_4",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_2",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_4");
+		system.actorOf(
+				Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_5",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("30")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.25")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_1",
+						CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"))), "Company_Mobile_5");
 
 		ActorRef publisher = MarketContainer.getInstance().getPublisher(CHANNEL);
-		system.scheduler().schedule(Duration.Zero(), Duration.create(50, TimeUnit.MILLISECONDS), publisher, "Tick", system.dispatcher(), publisher);
+		system.scheduler().schedule(Duration.Zero(), Duration.create(500, TimeUnit.MILLISECONDS), publisher, "Tick", system.dispatcher(), publisher);
+		long time = System.currentTimeMillis();
+		do {
+		} while (!((time + TEST_TIME) <= System.currentTimeMillis()));
+	}
+
+	@Test
+	public void pubSubBigTest() {
+
+		int electroPartFactories = 7;
+		int mobileFactories = 15;
+
+		final ActorSystem system = ActorSystemContainer.getInstance().getSystem();
+
+		system.actorOf(Props.create(CompanyOil.class, CHANNEL, "Company_Oil"), "Company_Oil");
+		for (int i = 0; i < electroPartFactories; i++)
+			system.actorOf(
+					Props.create(CompanyElectrPartProd.class, CHANNEL, "Company_ElectroPart_" + i,
+							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("15"), new BigDecimal("30")),
+							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.30")),
+							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.7")),
+							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.2"))), "Company_ElectroPart_" + i);
+		for (int i = 0; i < mobileFactories; i++)
+			system.actorOf(Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_" + i,
+					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("40")),
+					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.30"), new BigDecimal("1.40")),
+					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
+					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_" + i%electroPartFactories,
+					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.03"), new BigDecimal("1.1"))), "Company_Mobile_" + i);
+
+		ActorRef publisher = MarketContainer.getInstance().getPublisher(CHANNEL);
+		system.scheduler().schedule(Duration.Zero(), Duration.create(1000, TimeUnit.MILLISECONDS), publisher, "Tick", system.dispatcher(), publisher);
 		long time = System.currentTimeMillis();
 		do {
 		} while (!((time + TEST_TIME) <= System.currentTimeMillis()));

@@ -31,15 +31,15 @@ public class CompanyElectrPartProd extends UntypedActor {
 	private BigDecimal zinnPrice;
 	private BigDecimal plasticPrice;
 
-	private static final BigDecimal POP_PLASTIC_IN_G = new BigDecimal("39");
-	private static final BigDecimal POP_COPPER_IN_G = new BigDecimal("16.9");
-	private static final BigDecimal POP_ALUMINIUM_IN_G = new BigDecimal("2.6");
-	private static final BigDecimal POP_NICKEL_IN_G = new BigDecimal("2.6");
-	private static final BigDecimal POP_ZINN_IN_G = new BigDecimal("1.3");
-	private static final BigDecimal POP_GOLD_IN_G = new BigDecimal("0.0025");
-	private static final BigDecimal POP_SILBER_IN_G = new BigDecimal("0.0025");
-	private static final BigDecimal POP_PLATIN_IN_G = new BigDecimal("0.0025");
-	private static final BigDecimal POP_PALLADIUM_IN_G = new BigDecimal("0.0025");
+	private static final BigDecimal POP_PLASTIC_IN_G = StaticVariables.convertToBigDecimal("39");
+	private static final BigDecimal POP_COPPER_IN_G = StaticVariables.convertToBigDecimal("16.9");
+	private static final BigDecimal POP_ALUMINIUM_IN_G = StaticVariables.convertToBigDecimal("2.6");
+	private static final BigDecimal POP_NICKEL_IN_G = StaticVariables.convertToBigDecimal("2.6");
+	private static final BigDecimal POP_ZINN_IN_G = StaticVariables.convertToBigDecimal("1.3");
+	private static final BigDecimal POP_GOLD_IN_G = StaticVariables.convertToBigDecimal("0.0025");
+	private static final BigDecimal POP_SILBER_IN_G = StaticVariables.convertToBigDecimal("0.0025");
+	private static final BigDecimal POP_PLATIN_IN_G = StaticVariables.convertToBigDecimal("0.0025");
+	private static final BigDecimal POP_PALLADIUM_IN_G = StaticVariables.convertToBigDecimal("0.0025");
 
 	private BigDecimal costManHour;
 	private BigDecimal fixCost;
@@ -66,19 +66,23 @@ public class CompanyElectrPartProd extends UntypedActor {
 				setResourcePrices(rmm);
 			} catch (UnrecognizedPropertyException e) {
 			}
-			if (((String) msg).contains("company") && ((String) msg).contains("Plastic")) {
-				setPlasticPrices(om.readValue((String) msg, MarketResponseMsgModel.class));
-				if (pricesNotNull()) {
-					final BigDecimal prodPrice = calculateProdPrice();
-					final BigDecimal bonusedProdPrice = prodPrice.multiply(bonus);
-					MarketResponseMsgModel mrmm = new MarketResponseMsgModel();
-					mrmm.setCompany(nameOfSubscriber);
-					mrmm.setType("Electronic_Part");
-					mrmm.setDate(om.readValue((String) msg, MarketResponseMsgModel.class).getDate());
-					mrmm.setValue(bonusedProdPrice.setScale(2, RoundingMode.UP).toString());
-					ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
-					publisher.tell(om.writeValueAsString(mrmm), getSelf());
+			try {
+				MarketResponseMsgModel mrmmResponse = om.readValue((String) msg, MarketResponseMsgModel.class);
+				if(mrmmResponse.getType().equals("Plastic")){
+					setPlasticPrices(om.readValue((String) msg, MarketResponseMsgModel.class));
+					if (pricesNotNull()) {
+						final BigDecimal prodPrice = calculateProdPrice();
+						final BigDecimal bonusedProdPrice = prodPrice.multiply(bonus);
+						MarketResponseMsgModel mrmm = new MarketResponseMsgModel();
+						mrmm.setCompany(nameOfSubscriber);
+						mrmm.setType("Electronic_Part");
+						mrmm.setDate(om.readValue((String) msg, MarketResponseMsgModel.class).getDate());
+						mrmm.setValue(bonusedProdPrice.setScale(2, RoundingMode.UP).toString());
+						ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
+						publisher.tell(om.writeValueAsString(mrmm), getSelf());
+					}
 				}
+			} catch (UnrecognizedPropertyException e) {
 			}
 		}
 	}
@@ -123,34 +127,34 @@ public class CompanyElectrPartProd extends UntypedActor {
 
 	private void setPlasticPrices(MarketResponseMsgModel mrmm) {
 		if (mrmm.getType().equals("Plastic"))
-			plasticPrice = new BigDecimal(mrmm.getValue());
+			plasticPrice = StaticVariables.convertToBigDecimal(mrmm.getValue());
 	}
 
 	private void setResourcePrices(ResourceMsgModel rmm) {
 		switch (rmm.getType()) {
 		case "Copper":
-			copperPrice = new BigDecimal(rmm.getValue());
+			copperPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Aluminium":
-			aluminiumPrice = new BigDecimal(rmm.getValue());
+			aluminiumPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Gold":
-			goldPrice = new BigDecimal(rmm.getValue());
+			goldPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Nickel":
-			nickelPrice = new BigDecimal(rmm.getValue());
+			nickelPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Palladium":
-			palladiumPrice = new BigDecimal(rmm.getValue());
+			palladiumPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Platin":
-			platinPrice = new BigDecimal(rmm.getValue());
+			platinPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Silber":
-			silberPrice = new BigDecimal(rmm.getValue());
+			silberPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Zinn":
-			zinnPrice = new BigDecimal(rmm.getValue());
+			zinnPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		}
 

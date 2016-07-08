@@ -2,15 +2,15 @@
 <testng-results skipped="0" failed="0" total="1" passed="1">
   <reporter-output>
   </reporter-output>
-  <suite name="Default suite" duration-ms="12841" started-at="2016-07-01T12:34:21Z" finished-at="2016-07-01T12:34:34Z">
+  <suite name="Default suite" duration-ms="5896" started-at="2016-07-08T12:53:06Z" finished-at="2016-07-08T12:53:12Z">
     <groups>
     </groups>
-    <test name="Default test" duration-ms="12841" started-at="2016-07-01T12:34:21Z" finished-at="2016-07-01T12:34:34Z">
+    <test name="Default test" duration-ms="5896" started-at="2016-07-08T12:53:06Z" finished-at="2016-07-08T12:53:12Z">
       <class name="de.haw.md.akka.cluster.test.PublishSubscribeTest">
-        <test-method status="PASS" signature="pubSubTest()[pri:0, instance:de.haw.md.akka.cluster.test.PublishSubscribeTest@1c53fd30]" name="pubSubTest" duration-ms="12830" started-at="2016-07-01T14:34:21Z" finished-at="2016-07-01T14:34:34Z">
+        <test-method status="PASS" signature="pubSubBigTest()[pri:0, instance:de.haw.md.akka.cluster.test.PublishSubscribeTest@1c53fd30]" name="pubSubBigTest" duration-ms="5886" started-at="2016-07-08T14:53:06Z" finished-at="2016-07-08T14:53:12Z">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- pubSubTest -->
+        </test-method> <!-- pubSubBigTest -->
       </class> <!-- de.haw.md.akka.cluster.test.PublishSubscribeTest -->
     </test> <!-- Default test -->
   </suite> <!-- Default suite -->

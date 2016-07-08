@@ -19,8 +19,8 @@ public class CompanyOil extends UntypedActor {
 
 	private String channel;
 	private String nameOfSubscriber;
-	private static final BigDecimal PRODUCTION_COST = new BigDecimal("2.3242");
-	private static final BigDecimal MARK_UP = CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.07"));
+	private static final BigDecimal PRODUCTION_COST = StaticVariables.convertToBigDecimal("2.3242");
+	private static final BigDecimal MARK_UP = CompanyMainTwo.generateRandomBigDecimalFromRange(StaticVariables.convertToBigDecimal("1.05"), StaticVariables.convertToBigDecimal("1.07"));
 
 	public CompanyOil(String channel, String nameOfSubscriber) {
 		this.nameOfSubscriber = nameOfSubscriber;
@@ -39,7 +39,7 @@ public class CompanyOil extends UntypedActor {
 					// log.info("Subscriber Channel: {}, got: {}", channel,
 					// msg);
 					ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
-					final BigDecimal oilPrice = new BigDecimal(rmm.getValue());
+					final BigDecimal oilPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 					final BigDecimal oilPriceInKG = oilPrice.divide(StaticVariables.BARREL_IN_KG, 10, RoundingMode.HALF_DOWN);
 					final BigDecimal plasticPriceInKG = oilPriceInKG.multiply(PRODUCTION_COST);
 					MarketResponseMsgModel mrmm = new MarketResponseMsgModel();
