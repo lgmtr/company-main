@@ -77,7 +77,9 @@ public class CompanyElectrPartProd extends UntypedActor {
 						mrmm.setCompany(nameOfSubscriber);
 						mrmm.setType("Electronic_Part");
 						mrmm.setDate(om.readValue((String) msg, MarketResponseMsgModel.class).getDate());
-						mrmm.setValue(bonusedProdPrice.setScale(2, RoundingMode.UP).toString());
+						mrmm.setRevenue(bonusedProdPrice.setScale(2, RoundingMode.UP).toString());
+						mrmm.setSelledProducts("0");
+						mrmm.setProfit("0");
 						ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
 						publisher.tell(om.writeValueAsString(mrmm), getSelf());
 					}
@@ -127,7 +129,7 @@ public class CompanyElectrPartProd extends UntypedActor {
 
 	private void setPlasticPrices(MarketResponseMsgModel mrmm) {
 		if (mrmm.getType().equals("Plastic"))
-			plasticPrice = StaticVariables.convertToBigDecimal(mrmm.getValue());
+			plasticPrice = StaticVariables.convertToBigDecimal(mrmm.getRevenue());
 	}
 
 	private void setResourcePrices(ResourceMsgModel rmm) {

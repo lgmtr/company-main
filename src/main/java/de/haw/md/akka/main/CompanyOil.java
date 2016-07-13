@@ -46,7 +46,7 @@ public class CompanyOil extends UntypedActor {
 					mrmm.setCompany(nameOfSubscriber);
 					mrmm.setDate(rmm.getDate());
 					mrmm.setType("Plastic");
-					mrmm.setValue(plasticPriceInKG.multiply(MARK_UP).setScale(2, RoundingMode.HALF_UP).toString());
+					mrmm.setRevenue(plasticPriceInKG.multiply(MARK_UP).setScale(2, RoundingMode.HALF_UP).toString());
 					publisher.tell(om.writeValueAsString(mrmm), getSelf());
 				}
 			} catch (UnrecognizedPropertyException e) {

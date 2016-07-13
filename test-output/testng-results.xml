@@ -2,12 +2,12 @@
 <testng-results skipped="0" failed="0" total="1" passed="1">
   <reporter-output>
   </reporter-output>
-  <suite name="Default suite" duration-ms="5896" started-at="2016-07-08T12:53:06Z" finished-at="2016-07-08T12:53:12Z">
+  <suite name="Default suite" duration-ms="120809" started-at="2016-07-13T13:47:00Z" finished-at="2016-07-13T13:49:01Z">
     <groups>
     </groups>
-    <test name="Default test" duration-ms="5896" started-at="2016-07-08T12:53:06Z" finished-at="2016-07-08T12:53:12Z">
+    <test name="Default test" duration-ms="120809" started-at="2016-07-13T13:47:00Z" finished-at="2016-07-13T13:49:01Z">
       <class name="de.haw.md.akka.cluster.test.PublishSubscribeTest">
-        <test-method status="PASS" signature="pubSubBigTest()[pri:0, instance:de.haw.md.akka.cluster.test.PublishSubscribeTest@1c53fd30]" name="pubSubBigTest" duration-ms="5886" started-at="2016-07-08T14:53:06Z" finished-at="2016-07-08T14:53:12Z">
+        <test-method status="PASS" signature="pubSubBigTest()[pri:0, instance:de.haw.md.akka.cluster.test.PublishSubscribeTest@1c53fd30]" name="pubSubBigTest" duration-ms="120808" started-at="2016-07-13T15:47:00Z" finished-at="2016-07-13T15:49:01Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- pubSubBigTest -->

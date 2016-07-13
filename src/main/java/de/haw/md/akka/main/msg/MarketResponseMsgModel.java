@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "company", "type", "date", "value" })
+@JsonPropertyOrder({ "company", "type", "date", "revenue", "selledProducts", "profit" })
 public class MarketResponseMsgModel {
 
 	@JsonProperty("company")
@@ -14,9 +14,13 @@ public class MarketResponseMsgModel {
 	private String type;
 	@JsonProperty("date")
 	private String date;
-	@JsonProperty("value")
-	private String value;
-
+	@JsonProperty("revenue")
+	private String revenue;
+	@JsonProperty("selledProducts")
+	private String selledProducts;
+	@JsonProperty("profit")
+	private String profit;
+		
 	@JsonProperty("company")
 	public String getCompany() {
 		return company;
@@ -47,14 +51,34 @@ public class MarketResponseMsgModel {
 		this.date = date;
 	}
 
-	@JsonProperty("value")
-	public String getValue() {
-		return value;
+	@JsonProperty("revenue")
+	public String getRevenue() {
+		return revenue;
 	}
 
-	@JsonProperty("value")
-	public void setValue(String value) {
-		this.value = value;
+	@JsonProperty("revenue")
+	public void setRevenue(String value) {
+		this.revenue = value;
+	}
+
+	@JsonProperty("selledProducts")
+	public String getSelledProducts() {
+		return selledProducts;
+	}
+
+	@JsonProperty("selledProducts")
+	public void setSelledProducts(String selledProducts) {
+		this.selledProducts = selledProducts;
+	}
+
+	@JsonProperty("profit")
+	public String getProfit() {
+		return profit;
+	}
+
+	@JsonProperty("profit")
+	public void setProfit(String profit) {
+		this.profit = profit;
 	}
 
 }

@@ -118,6 +118,10 @@ public class CompanyMainTwo {
 		BigDecimal randomBigDecimal = min.add(new BigDecimal(Math.random()).multiply(max.subtract(min)));
 		return randomBigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
 	}
+	
+	public static BigDecimal generateRandomBigDecimalFromRangeScale0(BigDecimal min, BigDecimal max) {
+		return generateRandomBigDecimalFromRange(min, max).setScale(0, RoundingMode.HALF_UP);
+	}
 
 	public Company getC1() {
 		return c1;

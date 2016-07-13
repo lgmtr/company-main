@@ -13,7 +13,9 @@ import akka.cluster.pubsub.DistributedPubSubMediator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
+import de.haw.md.akka.main.msg.CompanyShareMsgModel;
 import de.haw.md.akka.main.msg.MarketResponseMsgModel;
+import de.haw.md.akka.main.msg.MarketShareMsgModel;
 import de.haw.md.akka.main.msg.ResourceMsgModel;
 import de.haw.md.sups.StaticVariables;
 
@@ -48,18 +50,27 @@ public class CompanyMobile extends UntypedActor {
 	private static final BigDecimal POP_PALLADIUM_IN_G = StaticVariables.convertToBigDecimal("0.0005");
 
 	private BigDecimal costManHour;
-	private BigDecimal fixCost;
 	private BigDecimal prodManHour;
 	private BigDecimal bonus;
+	private BigDecimal fixCost;
+	private BigDecimal productionLines;
+	private BigDecimal productionLineCapacity;
+	
+	private BigDecimal shareVolume = StaticVariables.ESTIMATED_MARKT_VOLUME.divide(StaticVariables.MONTH.subtract(new BigDecimal("15")), 0, RoundingMode.HALF_DOWN);
+	private BigDecimal selledProducts;
+	
+	private BigDecimal basisPrice = BigDecimal.ZERO;
 
 	private DateTime dateTicker;
 
-	public CompanyMobile(String channel, String nameOfSubscriber, BigDecimal costManHour, BigDecimal fixCost, BigDecimal prodManHour, BigDecimal bonus,
-			String supplier, BigDecimal supDiscount) {
+	public CompanyMobile(String channel, String nameOfSubscriber, BigDecimal costManHour, BigDecimal prodManHour, BigDecimal bonus,
+			String supplier, BigDecimal supDiscount, BigDecimal fixCost, BigDecimal productionLines, BigDecimal productionLineCapacity) {
 		this.supDiscount = supDiscount;
 		this.supplier = supplier;
 		this.costManHour = costManHour;
 		this.fixCost = fixCost;
+		this.productionLines = productionLines;
+		this.productionLineCapacity = productionLineCapacity;
 		this.prodManHour = prodManHour;
 		this.bonus = bonus;
 		this.nameOfSubscriber = nameOfSubscriber;
@@ -77,31 +88,58 @@ public class CompanyMobile extends UntypedActor {
 				setResourcePrices(rmm);
 			} catch (UnrecognizedPropertyException e) {
 			}
+			try {
+				MarketShareMsgModel msmm = om.readValue((String) msg, MarketShareMsgModel.class);
+				shareVolume = setShareVolume(findCompanyShares(msmm)).divide(StaticVariables.MONTH, 0, RoundingMode.HALF_DOWN);
+			} catch (UnrecognizedPropertyException e) {
+			}
 			if (((String) msg).contains("company")) {
-				try{
-				MarketResponseMsgModel mrmmInput = om.readValue((String) msg, MarketResponseMsgModel.class);
-				setPlasticPrices(mrmmInput);
-				if (mrmmInput.getCompany().equals(supplier))
+				try {
+					MarketResponseMsgModel mrmmInput = om.readValue((String) msg, MarketResponseMsgModel.class);
 					setPlasticPrices(mrmmInput);
-				if (dateTicker == null)
-					dateTicker = DateTime.parse(mrmmInput.getDate(), StaticVariables.DE_DATE_FORMATTER);
-				if (pricesNotNull()) {
-					final BigDecimal prodPrice = calculateProdPrice();
-					final BigDecimal bonusedProdPrice = prodPrice.multiply(bonus);
-					MarketResponseMsgModel mrmm = new MarketResponseMsgModel();
-					mrmm.setCompany(nameOfSubscriber);
-					mrmm.setType("Mobile_Phone");
-					mrmm.setDate(om.readValue((String) msg, MarketResponseMsgModel.class).getDate());
-					mrmm.setValue(bonusedProdPrice.setScale(2, RoundingMode.UP).toString());
-					if (dateTicker.isBefore(DateTime.parse(mrmmInput.getDate(), StaticVariables.DE_DATE_FORMATTER))) {
+					if (mrmmInput.getCompany().equals(supplier))
+						setPlasticPrices(mrmmInput);
+					if (dateTicker == null)
 						dateTicker = DateTime.parse(mrmmInput.getDate(), StaticVariables.DE_DATE_FORMATTER);
-						ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
-						publisher.tell(om.writeValueAsString(mrmm), getSelf());
+					if (pricesNotNull() && shareVolume.compareTo(BigDecimal.ZERO) != 0) {
+						final BigDecimal prodPrice = calculateProdPrice();
+						if(basisPrice.compareTo(BigDecimal.ZERO) == 0)
+							basisPrice = prodPrice.multiply(bonus);
+						MarketResponseMsgModel mrmm = new MarketResponseMsgModel();
+						mrmm.setCompany(nameOfSubscriber);
+						mrmm.setType("Mobile_Phone");
+						mrmm.setDate(om.readValue((String) msg, MarketResponseMsgModel.class).getDate());
+						final BigDecimal revenuePerMobile = basisPrice.setScale(2, RoundingMode.UP);
+						mrmm.setRevenue(revenuePerMobile.toString());
+						mrmm.setSelledProducts(selledProducts.toString());
+						final BigDecimal profit = (revenuePerMobile.subtract(prodPrice)).multiply(selledProducts).setScale(2, RoundingMode.HALF_UP);
+						if(profit.compareTo(BigDecimal.ZERO) < 0){
+							mrmm.setRevenue(BigDecimal.ZERO.toString());
+						}
+						mrmm.setProfit(profit.toString());
+						if (dateTicker.isBefore(DateTime.parse(mrmmInput.getDate(), StaticVariables.DE_DATE_FORMATTER))) {
+							dateTicker = DateTime.parse(mrmmInput.getDate(), StaticVariables.DE_DATE_FORMATTER);
+							ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
+							publisher.tell(om.writeValueAsString(mrmm), getSelf());
+						}
 					}
+				} catch (UnrecognizedPropertyException e) {
 				}
-				}catch(UnrecognizedPropertyException e){}
 			}
 		}
+	}
+
+	private CompanyShareMsgModel findCompanyShares(MarketShareMsgModel msmm) {
+		for (CompanyShareMsgModel csmm : msmm.getCompanyShareMsgModels())
+			if (csmm.getCompany().equals(nameOfSubscriber))
+				return csmm;
+		return null;
+	}
+
+	private BigDecimal setShareVolume(CompanyShareMsgModel csmm) {
+		if (csmm != null)
+			return new BigDecimal(csmm.getShareVolume());
+		return BigDecimal.ZERO;
 	}
 
 	private BigDecimal calculateProdPrice() {
@@ -118,7 +156,16 @@ public class CompanyMobile extends UntypedActor {
 				.add(copperPartPrice).add(aluminiumPartPrice).add(nickelPartPrice).add(zinnPartPrice);
 		final BigDecimal supPriceWithDisc = electronicPartPrice.divide(supDiscount, RoundingMode.HALF_UP);
 		final BigDecimal complManCost = costManHour.multiply(prodManHour);
-		return (compPartWOSupPrice.add(complManCost).add(supPriceWithDisc)).multiply(fixCost);
+		final BigDecimal numberOfProdLines = shareVolume.divide(productionLineCapacity, 0, RoundingMode.UP);
+		BigDecimal prodLinesCost;
+		if(numberOfProdLines.compareTo(productionLines) > 0){
+			selledProducts = productionLines.multiply(productionLineCapacity).setScale(0, RoundingMode.UP);
+			prodLinesCost = fixCost.divide(selledProducts, 2, RoundingMode.HALF_UP);
+		}else{
+			selledProducts = shareVolume;
+			prodLinesCost = fixCost.divide(numberOfProdLines, 2, RoundingMode.HALF_UP).divide(selledProducts, 2, RoundingMode.HALF_UP);
+		}
+		return (compPartWOSupPrice.add(complManCost).add(supPriceWithDisc)).add(prodLinesCost);
 	}
 
 	private boolean pricesNotNull() {
@@ -147,9 +194,9 @@ public class CompanyMobile extends UntypedActor {
 
 	private void setPlasticPrices(MarketResponseMsgModel mrmm) {
 		if (mrmm.getType().equals("Plastic"))
-			plasticPrice = StaticVariables.convertToBigDecimal(mrmm.getValue());
+			plasticPrice = StaticVariables.convertToBigDecimal(mrmm.getRevenue());
 		if (mrmm.getType().equals("Electronic_Part"))
-			electronicPartPrice = StaticVariables.convertToBigDecimal(mrmm.getValue());
+			electronicPartPrice = StaticVariables.convertToBigDecimal(mrmm.getRevenue());
 	}
 
 	private void setResourcePrices(ResourceMsgModel rmm) {

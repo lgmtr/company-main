@@ -42,9 +42,9 @@ public class Market extends UntypedActor {
 	private Resources res = new Resources();
 
 	private Map<String, BigDecimal> companyMarketPrices = new HashMap<>();
-	
+
 	private BigDecimal counter = BigDecimal.ZERO;
-	
+
 	private BigDecimal currentMarketVolume;
 
 	public Market(String channel) {
@@ -75,13 +75,20 @@ public class Market extends UntypedActor {
 				publish(resSilberMsg);
 				final String resZinnMsg = mapToJson("Zinn", res.getZinnPrice());
 				publish(resZinnMsg);
-				if(counter.compareTo(BigDecimal.ZERO) != 0)
-					currentMarketVolume = currentMarketVolume.divide(counter, 0, RoundingMode.HALF_DOWN);
+				if (counter.compareTo(BigDecimal.ZERO) != 0) {
+					final BigDecimal volume = StaticVariables.MARKET_VOLUME.divide(counter.divide(new BigDecimal("30"), 10, RoundingMode.HALF_UP), 0,
+							RoundingMode.HALF_DOWN);
+					if (volume.compareTo(StaticVariables.MARKET_VOLUME) > 0)
+						currentMarketVolume = StaticVariables.MARKET_VOLUME;
+					else
+						currentMarketVolume = volume;
+				}
 				if (companyMarketPrices.size() > 0) {
 					final String generateShares = generateShares();
 					System.out.println(generateShares);
 					publish(generateShares);
 				}
+				counter = counter.add(BigDecimal.ONE);
 				System.out.println("");
 			} else {
 				// log.info("Publish Channel: {}, got: {}", channel, msg);
@@ -90,9 +97,9 @@ public class Market extends UntypedActor {
 					MarketResponseMsgModel mrmm = om.readValue((String) msg, MarketResponseMsgModel.class);
 					if (mrmm.getType().equals("Mobile_Phone")) {
 						if (companyMarketPrices.containsKey(mrmm.getCompany())) {
-							companyMarketPrices.replace(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getValue()));
+							companyMarketPrices.replace(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getRevenue()));
 						} else {
-							companyMarketPrices.put(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getValue()));
+							companyMarketPrices.put(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getRevenue()));
 						}
 					}
 					System.out.println(msg);
@@ -114,12 +121,14 @@ public class Market extends UntypedActor {
 		for (String company : companyMarketPrices.keySet())
 			sumPrice = sumPrice.add(companyMarketPrices.get(company));
 		for (String company : companyMarketPrices.keySet()) {
-			BigDecimal sumPriceOnePercent = sumPrice.divide(StaticVariables.HUNDRED, 10, RoundingMode.HALF_DOWN);
-			BigDecimal percentPerPrice = companyMarketPrices.get(company).divide(sumPriceOnePercent, 10, RoundingMode.HALF_DOWN);
-			BigDecimal variableShareOnePercent = variableShare.divide(StaticVariables.HUNDRED, 10, RoundingMode.HALF_DOWN);
-			BigDecimal variableSharePerComp = percentPerPrice.multiply(variableShareOnePercent);
-			BigDecimal perCompMarketShare = (fixedMarketSharePerCompany.add(variableSharePerComp));
-			companyShareMsgModels.add(new CompanyShareMsgModel(company, perCompMarketShare.toString()));
+			if (companyMarketPrices.get(company).compareTo(BigDecimal.ZERO) != 0) {
+				BigDecimal sumPriceOnePercent = sumPrice.divide(StaticVariables.HUNDRED, 10, RoundingMode.HALF_DOWN);
+				BigDecimal percentPerPrice = companyMarketPrices.get(company).divide(sumPriceOnePercent, 10, RoundingMode.HALF_DOWN);
+				BigDecimal variableShareOnePercent = variableShare.divide(StaticVariables.HUNDRED, 10, RoundingMode.HALF_DOWN);
+				BigDecimal variableSharePerComp = percentPerPrice.multiply(variableShareOnePercent);
+				BigDecimal perCompMarketShare = (fixedMarketSharePerCompany.add(variableSharePerComp));
+				companyShareMsgModels.add(new CompanyShareMsgModel(company, perCompMarketShare.toString()));
+			}
 		}
 		companyShareMsgModels = sortShares(companyShareMsgModels);
 		calculateShareVolume(companyShareMsgModels);
@@ -132,8 +141,8 @@ public class Market extends UntypedActor {
 
 	private void calculateShareVolume(List<CompanyShareMsgModel> companyShareMsgModels) {
 		for (CompanyShareMsgModel companyShareMsgModel : companyShareMsgModels)
-			companyShareMsgModel.setShareVolume(currentMarketVolume.divide(StaticVariables.HUNDRED, RoundingMode.HALF_DOWN).multiply(
-					StaticVariables.convertToBigDecimal(companyShareMsgModel.getShareValue())).setScale(0, RoundingMode.HALF_DOWN).toString());
+			companyShareMsgModel.setShareVolume(currentMarketVolume.divide(StaticVariables.HUNDRED, RoundingMode.HALF_DOWN)
+					.multiply(StaticVariables.convertToBigDecimal(companyShareMsgModel.getShareValue())).setScale(0, RoundingMode.HALF_DOWN).toString());
 	}
 
 	private List<CompanyShareMsgModel> sortShares(List<CompanyShareMsgModel> companyShareMsgModels) throws CloneNotSupportedException {
@@ -159,7 +168,7 @@ public class Market extends UntypedActor {
 	public String mapToJson(String type, Map<DateTime, BigDecimal> ressource) throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		ResourceMsgModel rmm = new ResourceMsgModel();
-		final BigDecimal newPrice = ResourceCalc.nextRandomStockPrice(ressource, 50);
+		final BigDecimal newPrice = ResourceCalc.nextRandomStockPrice(ressource);
 		final DateTime date = ResourceCalc.getFinalDate(ressource).plusDays(1);
 		rmm.setDate(date.toString(StaticVariables.DE_DATE_FORMATTER));
 		rmm.setValue(newPrice.setScale(2, RoundingMode.HALF_DOWN).toString());

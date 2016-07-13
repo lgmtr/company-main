@@ -25,9 +25,13 @@ public class StaticVariables {
 	
 	public final static BigDecimal FIXED_MARKET_SHARE = new BigDecimal("30");
 	
-	public final static BigDecimal MARKET_VOLUME = new BigDecimal("1000000000");
+	public final static BigDecimal MARKET_VOLUME = new BigDecimal("10000000");
 	
 	public final static BigDecimal HUNDRED = new BigDecimal("100");
+	
+	public final static BigDecimal ESTIMATED_MARKT_VOLUME = MARKET_VOLUME.divide(HUNDRED).multiply(new BigDecimal("5"));
+	
+	public final static BigDecimal MONTH = new BigDecimal("30");
 	
 	public static BigDecimal convertToBigDecimal(String value){
 		return new BigDecimal(value);
