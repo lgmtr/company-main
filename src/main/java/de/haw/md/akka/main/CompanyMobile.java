@@ -102,7 +102,7 @@ public class CompanyMobile extends UntypedActor {
 					if (dateTicker == null)
 						dateTicker = DateTime.parse(mrmmInput.getDate(), StaticVariables.DE_DATE_FORMATTER);
 					if (pricesNotNull() && shareVolume.compareTo(BigDecimal.ZERO) != 0) {
-						final BigDecimal prodPrice = calculateProdPrice();
+						final BigDecimal prodPrice = calculateProdPrice(shareVolume);
 						if(basisPrice.compareTo(BigDecimal.ZERO) == 0)
 							basisPrice = prodPrice.multiply(bonus);
 						MarketResponseMsgModel mrmm = new MarketResponseMsgModel();
@@ -112,9 +112,16 @@ public class CompanyMobile extends UntypedActor {
 						final BigDecimal revenuePerMobile = basisPrice.setScale(2, RoundingMode.UP);
 						mrmm.setRevenue(revenuePerMobile.toString());
 						mrmm.setSelledProducts(selledProducts.toString());
-						final BigDecimal profit = (revenuePerMobile.subtract(prodPrice)).multiply(selledProducts).setScale(2, RoundingMode.HALF_UP);
+						BigDecimal profit = (revenuePerMobile.subtract(prodPrice)).multiply(selledProducts).setScale(2, RoundingMode.HALF_UP);
 						if(profit.compareTo(BigDecimal.ZERO) < 0){
-							mrmm.setRevenue(BigDecimal.ZERO.toString());
+							BigDecimal newRevenue = recalculatePrice();
+							if(newRevenue.compareTo(BigDecimal.ZERO) <= 0){
+								mrmm.setRevenue(BigDecimal.ZERO.toString());
+								profit = BigDecimal.ZERO;
+							}else{
+								mrmm.setRevenue(newRevenue.setScale(2, RoundingMode.HALF_DOWN).toString());
+								profit = (newRevenue.subtract(prodPrice)).multiply(selledProducts).setScale(2, RoundingMode.HALF_UP);
+							}
 						}
 						mrmm.setProfit(profit.toString());
 						if (dateTicker.isBefore(DateTime.parse(mrmmInput.getDate(), StaticVariables.DE_DATE_FORMATTER))) {
@@ -127,6 +134,21 @@ public class CompanyMobile extends UntypedActor {
 				}
 			}
 		}
+	}
+
+	private BigDecimal recalculatePrice() {
+		BigDecimal newPrice = basisPrice;
+		BigDecimal adjustment = StaticVariables.PRICE_ADJUSTMENT;
+		BigDecimal prodPrice = BigDecimal.ZERO;
+		do{
+			prodPrice = calculateProdPrice(shareVolume.multiply(BigDecimal.ONE.add(adjustment)));
+			newPrice = basisPrice.divide(BigDecimal.ONE.add(adjustment), 10, RoundingMode.HALF_UP);
+			if(newPrice.subtract(prodPrice).compareTo(BigDecimal.ZERO) > 0){
+				return newPrice;
+			}
+			adjustment = adjustment.add(StaticVariables.PRICE_ADJUSTMENT);
+		}while(newPrice.compareTo(prodPrice) > 0 || adjustment.compareTo(bonus.multiply(new BigDecimal(2))) <= 0);
+		return BigDecimal.ZERO;
 	}
 
 	private CompanyShareMsgModel findCompanyShares(MarketShareMsgModel msmm) {
@@ -142,7 +164,7 @@ public class CompanyMobile extends UntypedActor {
 		return BigDecimal.ZERO;
 	}
 
-	private BigDecimal calculateProdPrice() {
+	private BigDecimal calculateProdPrice(BigDecimal shareVolume) {
 		final BigDecimal platinPartPrice = platinPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_PLATIN_IN_G);
 		final BigDecimal goldPartPrice = goldPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_GOLD_IN_G);
 		final BigDecimal silberPartPrice = silberPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_SILBER_IN_G);

@@ -12,13 +12,12 @@ import de.haw.md.akka.main.CompanyMobile;
 import de.haw.md.akka.main.MarketContainer;
 import de.haw.md.akka.main.CompanyOil;
 import de.haw.md.company.main.CompanyMainTwo;
+import de.haw.md.sups.StaticVariables;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 
 public class PublishSubscribeTest {
-
-	private final static String CHANNEL = "MarketSim";
 
 	private final long TEST_TIME = 120000;
 
@@ -30,16 +29,16 @@ public class PublishSubscribeTest {
 
 		final ActorSystem system = ActorSystemContainer.getInstance().getSystem();
 
-		system.actorOf(Props.create(CompanyOil.class, CHANNEL, "Company_Oil"), "Company_Oil");
+		system.actorOf(Props.create(CompanyOil.class, StaticVariables.CHANNEL, "Company_Oil"), "Company_Oil");
 		for (int i = 0; i < electroPartFactories; i++)
 			system.actorOf(
-					Props.create(CompanyElectrPartProd.class, CHANNEL, "Company_ElectroPart_" + i,
+					Props.create(CompanyElectrPartProd.class, StaticVariables.CHANNEL, "Company_ElectroPart_" + i,
 							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("15"), new BigDecimal("30")),
 							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.30")),
 							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.7")),
 							CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.2"))), "Company_ElectroPart_" + i);
 		for (int i = 0; i < mobileFactories; i++)
-			system.actorOf(Props.create(CompanyMobile.class, CHANNEL, "Company_Mobile_" + i,
+			system.actorOf(Props.create(CompanyMobile.class, StaticVariables.CHANNEL, "Company_Mobile_" + i,
 					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("20"), new BigDecimal("40")),
 					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("2"), new BigDecimal("4")),
 					CompanyMainTwo.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.4")), "Company_ElectroPart_" + i%electroPartFactories,
@@ -48,7 +47,7 @@ public class PublishSubscribeTest {
 					CompanyMainTwo.generateRandomBigDecimalFromRangeScale0(new BigDecimal("4"), new BigDecimal("7")),
 					CompanyMainTwo.generateRandomBigDecimalFromRangeScale0(new BigDecimal("3000"), new BigDecimal("4000"))), "Company_Mobile_" + i);
 
-		ActorRef publisher = MarketContainer.getInstance().getPublisher(CHANNEL);
+		ActorRef publisher = MarketContainer.getInstance().getPublisher(StaticVariables.CHANNEL);
 		system.scheduler().schedule(Duration.Zero(), Duration.create(500, TimeUnit.MILLISECONDS), publisher, "Tick", system.dispatcher(), publisher);
 		long time = System.currentTimeMillis();
 		do {

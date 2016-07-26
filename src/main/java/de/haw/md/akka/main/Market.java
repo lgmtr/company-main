@@ -42,6 +42,8 @@ public class Market extends UntypedActor {
 	private Resources res = new Resources();
 
 	private Map<String, BigDecimal> companyMarketPrices = new HashMap<>();
+	
+	private Map<String, MarketResponseMsgModel> mobileMarketResponses = new HashMap<>();
 
 	private BigDecimal counter = BigDecimal.ZERO;
 
@@ -51,6 +53,7 @@ public class Market extends UntypedActor {
 		res.readAllPrices();
 		this.channel = channel;
 		currentMarketVolume = StaticVariables.MARKET_VOLUME;
+		MarketContainer.getInstance().setMarket(this);
 	}
 
 	@Override
@@ -85,11 +88,11 @@ public class Market extends UntypedActor {
 				}
 				if (companyMarketPrices.size() > 0) {
 					final String generateShares = generateShares();
-					System.out.println(generateShares);
+//					System.out.println(generateShares);
 					publish(generateShares);
 				}
 				counter = counter.add(BigDecimal.ONE);
-				System.out.println("");
+//				System.out.println("");
 			} else {
 				// log.info("Publish Channel: {}, got: {}", channel, msg);
 				try {
@@ -101,8 +104,14 @@ public class Market extends UntypedActor {
 						} else {
 							companyMarketPrices.put(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getRevenue()));
 						}
+						if(mobileMarketResponses.containsKey(mrmm.getCompany())){
+							mobileMarketResponses.replace(mrmm.getCompany(), mrmm);
+						} else {
+							mobileMarketResponses.put(mrmm.getCompany(), mrmm);
+						}
+							
 					}
-					System.out.println(msg);
+//					System.out.println(msg);
 					publish((String) msg);
 				} catch (UnrecognizedPropertyException e) {
 				}
@@ -175,6 +184,18 @@ public class Market extends UntypedActor {
 		rmm.setType(type);
 		ressource.put(date, newPrice);
 		return mapper.writeValueAsString(rmm);
+	}
+
+	public Map<String, BigDecimal> getCompanyMarketPrices() {
+		return companyMarketPrices;
+	}
+
+	public BigDecimal getCurrentMarketVolume() {
+		return currentMarketVolume;
+	}
+
+	public Map<String, MarketResponseMsgModel> getMobileMarketResponses() {
+		return mobileMarketResponses;
 	}
 
 }

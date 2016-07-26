@@ -11,6 +11,8 @@ public class MarketContainer {
 	private static MarketContainer instance = null;
 
 	private Map<String, ActorRef> publisher;
+	
+	private Market market;
 
 	public MarketContainer() {
 		publisher = new HashMap<>();
@@ -33,4 +35,13 @@ public class MarketContainer {
 		}
 		return instance;
 	}
+
+	public Market getMarket() {
+		return market;
+	}
+
+	public void setMarket(Market market) {
+		this.market = market;
+	}
+
 }
