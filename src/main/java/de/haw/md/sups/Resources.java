@@ -28,7 +28,7 @@ public class Resources {
 	private Map<DateTime, BigDecimal> platinPrice = new HashMap<>();
 	private Map<DateTime, BigDecimal> silberPrice = new HashMap<>();
 	private Map<DateTime, BigDecimal> zinnPrice = new HashMap<>();
-	private Map<DateTime, BigDecimal> copperPrice = new HashMap<>();
+	private Map<DateTime, BigDecimal> kupferPrice = new HashMap<>();
 
 	public void readAllPrices() {
 		readPrice("DCOILWTICO.csv", oilPrice, true);
@@ -39,7 +39,7 @@ public class Resources {
 		readPrice("Platinpreis.csv", platinPrice, false);
 		readPrice("Silberpreis.csv", silberPrice, false);
 		readPrice("Zinnpreis.csv", zinnPrice, false);
-		readPrice("Kupferpreis.csv", copperPrice, false);
+		readPrice("Kupferpreis.csv", kupferPrice, false);
 		for (Map<DateTime, BigDecimal> resourceElement : getListOfResources()) {
 			resourceElement.put(DateTime.now(), ResourceCalc.nextRandomStockPrice(resourceElement));
 		}
@@ -47,7 +47,7 @@ public class Resources {
 
 	public List<Map<DateTime, BigDecimal>> getListOfResources() {
 		List<Map<DateTime, BigDecimal>> resourcesList = new ArrayList<>();
-		resourcesList.addAll(Arrays.asList(oilPrice, aluminiumPrice, goldPrice, nickelPrice, palladiumPrice, platinPrice, silberPrice, zinnPrice, copperPrice));
+		resourcesList.addAll(Arrays.asList(oilPrice, aluminiumPrice, goldPrice, nickelPrice, palladiumPrice, platinPrice, silberPrice, zinnPrice, kupferPrice));
 		return resourcesList;
 	}
 
@@ -111,8 +111,8 @@ public class Resources {
 		return dateTimeList;
 	}
 
-	public Map<DateTime, BigDecimal> getCopperPrice() {
-		return this.copperPrice;
+	public Map<DateTime, BigDecimal> getKupferPrice() {
+		return this.kupferPrice;
 	}
 
 	public Map<DateTime, BigDecimal> getOilPrice() {

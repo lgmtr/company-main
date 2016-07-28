@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "company", "type", "date", "revenue", "selledProducts", "profit" })
+@JsonPropertyOrder({ "company", "type", "date", "revenue", "selledProducts", "profit", "productionCost" })
 public class MarketResponseMsgModel {
 
 	@JsonProperty("company")
@@ -20,7 +20,9 @@ public class MarketResponseMsgModel {
 	private String selledProducts;
 	@JsonProperty("profit")
 	private String profit;
-		
+	@JsonProperty("productionCost")
+	private String productionCost;
+	
 	@JsonProperty("company")
 	public String getCompany() {
 		return company;
@@ -79,6 +81,16 @@ public class MarketResponseMsgModel {
 	@JsonProperty("profit")
 	public void setProfit(String profit) {
 		this.profit = profit;
+	}
+
+	@JsonProperty("productionCost")
+	public String getProductionCost() {
+		return productionCost;
+	}
+
+	@JsonProperty("productionCost")
+	public void setProductionCost(String productionCost) {
+		this.productionCost = productionCost;
 	}
 
 }

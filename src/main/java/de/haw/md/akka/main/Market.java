@@ -18,6 +18,7 @@ import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -32,9 +33,6 @@ import de.haw.md.sups.StaticVariables;
 
 public class Market extends UntypedActor {
 
-	// private LoggingAdapter log = Logging.getLogger(getContext().system(),
-	// this);
-
 	private ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 
 	private String channel;
@@ -42,8 +40,10 @@ public class Market extends UntypedActor {
 	private Resources res = new Resources();
 
 	private Map<String, BigDecimal> companyMarketPrices = new HashMap<>();
-	
+
 	private Map<String, MarketResponseMsgModel> mobileMarketResponses = new HashMap<>();
+
+	private Map<String, ResourceMsgModel> resourceMarketResponses = new HashMap<>();
 
 	private BigDecimal counter = BigDecimal.ZERO;
 
@@ -60,65 +60,87 @@ public class Market extends UntypedActor {
 	public void onReceive(Object msg) throws Exception {
 		if (msg instanceof String) {
 			if (msg.equals("Tick")) {
-				final String resOilMsg = mapToJson("Oil", res.getOilPrice());
-				publish(resOilMsg);
-				final String resCopperMsg = mapToJson("Copper", res.getCopperPrice());
-				publish(resCopperMsg);
-				final String resAluminiumMsg = mapToJson("Aluminium", res.getAluminiumPrice());
-				publish(resAluminiumMsg);
-				final String resGoldMsg = mapToJson("Gold", res.getGoldPrice());
-				publish(resGoldMsg);
-				final String resNickelMsg = mapToJson("Nickel", res.getNickelPrice());
-				publish(resNickelMsg);
-				final String resPalladiumMsg = mapToJson("Palladium", res.getPalladiumPrice());
-				publish(resPalladiumMsg);
-				final String resPlatinMsg = mapToJson("Platin", res.getPlatinPrice());
-				publish(resPlatinMsg);
-				final String resSilberMsg = mapToJson("Silber", res.getSilberPrice());
-				publish(resSilberMsg);
-				final String resZinnMsg = mapToJson("Zinn", res.getZinnPrice());
-				publish(resZinnMsg);
-				if (counter.compareTo(BigDecimal.ZERO) != 0) {
-					final BigDecimal volume = StaticVariables.MARKET_VOLUME.divide(counter.divide(new BigDecimal("30"), 10, RoundingMode.HALF_UP), 0,
-							RoundingMode.HALF_DOWN);
-					if (volume.compareTo(StaticVariables.MARKET_VOLUME) > 0)
-						currentMarketVolume = StaticVariables.MARKET_VOLUME;
-					else
-						currentMarketVolume = volume;
-				}
-				if (companyMarketPrices.size() > 0) {
-					final String generateShares = generateShares();
-//					System.out.println(generateShares);
-					publish(generateShares);
-				}
-				counter = counter.add(BigDecimal.ONE);
-//				System.out.println("");
+				publishResources();
+				calculateMarketVolumeAShares();
 			} else {
-				// log.info("Publish Channel: {}, got: {}", channel, msg);
-				try {
-					ObjectMapper om = new ObjectMapper();
-					MarketResponseMsgModel mrmm = om.readValue((String) msg, MarketResponseMsgModel.class);
-					if (mrmm.getType().equals("Mobile_Phone")) {
-						if (companyMarketPrices.containsKey(mrmm.getCompany())) {
-							companyMarketPrices.replace(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getRevenue()));
-						} else {
-							companyMarketPrices.put(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getRevenue()));
-						}
-						if(mobileMarketResponses.containsKey(mrmm.getCompany())){
-							mobileMarketResponses.replace(mrmm.getCompany(), mrmm);
-						} else {
-							mobileMarketResponses.put(mrmm.getCompany(), mrmm);
-						}
-							
-					}
-//					System.out.println(msg);
-					publish((String) msg);
-				} catch (UnrecognizedPropertyException e) {
-				}
+				handleMarketResponse(msg, new ObjectMapper());
+				handleResourceResponse(msg, new ObjectMapper());
 			}
+			// System.out.println(msg);
 		} else {
 			unhandled(msg);
 		}
+	}
+
+	private void handleResourceResponse(Object msg, ObjectMapper om) throws IOException, JsonParseException, JsonMappingException {
+		try {
+			ResourceMsgModel rmm = om.readValue((String) msg, ResourceMsgModel.class);
+			if (resourceMarketResponses.containsKey(rmm.getType()))
+				resourceMarketResponses.replace(rmm.getType(), rmm);
+			else
+				resourceMarketResponses.put(rmm.getType(), rmm);
+		} catch (UnrecognizedPropertyException e) {
+		}
+	}
+
+	private void handleMarketResponse(Object msg, ObjectMapper om) throws IOException, JsonParseException, JsonMappingException {
+		try {
+			MarketResponseMsgModel mrmm = om.readValue((String) msg, MarketResponseMsgModel.class);
+			if (mrmm.getType().equals("Mobile_Phone")) {
+				if (companyMarketPrices.containsKey(mrmm.getCompany())) {
+					companyMarketPrices.replace(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getRevenue()));
+				} else {
+					companyMarketPrices.put(mrmm.getCompany(), StaticVariables.convertToBigDecimal(mrmm.getRevenue()));
+				}
+				if (mobileMarketResponses.containsKey(mrmm.getCompany())) {
+					mobileMarketResponses.replace(mrmm.getCompany(), mrmm);
+				} else {
+					mobileMarketResponses.put(mrmm.getCompany(), mrmm);
+				}
+			}
+			// System.out.println(msg);
+			publish((String) msg);
+		} catch (UnrecognizedPropertyException e) {
+		}
+	}
+
+	private void calculateMarketVolumeAShares() throws JsonGenerationException, JsonMappingException, IOException, CloneNotSupportedException {
+		if (counter.compareTo(BigDecimal.ZERO) != 0) {
+			final BigDecimal volume = StaticVariables.MARKET_VOLUME.divide(counter.divide(StaticVariables.MONTH, 10, RoundingMode.HALF_UP), 0,
+					RoundingMode.HALF_DOWN);
+			if (volume.compareTo(StaticVariables.MARKET_VOLUME) > 0)
+				currentMarketVolume = StaticVariables.MARKET_VOLUME;
+			else
+				currentMarketVolume = volume;
+		}
+		if (companyMarketPrices.size() > 0) {
+			final String generateShares = generateShares();
+			// System.out.println(generateShares);
+			publish(generateShares);
+		}
+		counter = counter.add(BigDecimal.ONE);
+		// System.out.println("");
+	}
+
+	private void publishResources() throws JsonGenerationException, JsonMappingException, IOException {
+		final String resOilMsg = mapToJson("Oil", res.getOilPrice());
+		publish(resOilMsg);
+		final String resKupferMsg = mapToJson("Kupfer", res.getKupferPrice());
+		publish(resKupferMsg);
+		final String resAluminiumMsg = mapToJson("Aluminium", res.getAluminiumPrice());
+		publish(resAluminiumMsg);
+		final String resGoldMsg = mapToJson("Gold", res.getGoldPrice());
+		publish(resGoldMsg);
+		final String resNickelMsg = mapToJson("Nickel", res.getNickelPrice());
+		publish(resNickelMsg);
+		final String resPalladiumMsg = mapToJson("Palladium", res.getPalladiumPrice());
+		publish(resPalladiumMsg);
+		final String resPlatinMsg = mapToJson("Platin", res.getPlatinPrice());
+		publish(resPlatinMsg);
+		final String resSilberMsg = mapToJson("Silber", res.getSilberPrice());
+		publish(resSilberMsg);
+		final String resZinnMsg = mapToJson("Zinn", res.getZinnPrice());
+		publish(resZinnMsg);
 	}
 
 	private String generateShares() throws JsonGenerationException, JsonMappingException, IOException, CloneNotSupportedException {
@@ -183,7 +205,15 @@ public class Market extends UntypedActor {
 		rmm.setValue(newPrice.setScale(2, RoundingMode.HALF_DOWN).toString());
 		rmm.setType(type);
 		ressource.put(date, newPrice);
+		addResourceMsg(rmm);
 		return mapper.writeValueAsString(rmm);
+	}
+
+	private void addResourceMsg(ResourceMsgModel rmm) {
+		if (resourceMarketResponses.containsKey(rmm.getType()))
+			resourceMarketResponses.replace(rmm.getType(), rmm);
+		else
+			resourceMarketResponses.put(rmm.getType(), rmm);
 	}
 
 	public Map<String, BigDecimal> getCompanyMarketPrices() {
@@ -196,6 +226,10 @@ public class Market extends UntypedActor {
 
 	public Map<String, MarketResponseMsgModel> getMobileMarketResponses() {
 		return mobileMarketResponses;
+	}
+
+	public Map<String, ResourceMsgModel> getResourceMarketResponses() {
+		return resourceMarketResponses;
 	}
 
 }

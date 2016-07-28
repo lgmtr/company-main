@@ -21,7 +21,7 @@ public class CompanyElectrPartProd extends UntypedActor {
 
 	private String nameOfSubscriber;
 
-	private BigDecimal copperPrice;
+	private BigDecimal kupferPrice;
 	private BigDecimal aluminiumPrice;
 	private BigDecimal goldPrice;
 	private BigDecimal nickelPrice;
@@ -32,7 +32,7 @@ public class CompanyElectrPartProd extends UntypedActor {
 	private BigDecimal plasticPrice;
 
 	private static final BigDecimal POP_PLASTIC_IN_G = StaticVariables.convertToBigDecimal("39");
-	private static final BigDecimal POP_COPPER_IN_G = StaticVariables.convertToBigDecimal("16.9");
+	private static final BigDecimal POP_KUPFER_IN_G = StaticVariables.convertToBigDecimal("16.9");
 	private static final BigDecimal POP_ALUMINIUM_IN_G = StaticVariables.convertToBigDecimal("2.6");
 	private static final BigDecimal POP_NICKEL_IN_G = StaticVariables.convertToBigDecimal("2.6");
 	private static final BigDecimal POP_ZINN_IN_G = StaticVariables.convertToBigDecimal("1.3");
@@ -95,18 +95,18 @@ public class CompanyElectrPartProd extends UntypedActor {
 		final BigDecimal silberPartPrice = silberPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_SILBER_IN_G);
 		final BigDecimal palladiumPartPrice = palladiumPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_PALLADIUM_IN_G);
 		final BigDecimal plasticPartPrice = plasticPrice.divide(StaticVariables.KG_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_PLASTIC_IN_G);
-		final BigDecimal copperPartPrice = copperPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_COPPER_IN_G);
+		final BigDecimal kupferPartPrice = kupferPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_KUPFER_IN_G);
 		final BigDecimal aluminiumPartPrice = aluminiumPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_ALUMINIUM_IN_G);
 		final BigDecimal nickelPartPrice = nickelPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_NICKEL_IN_G);
 		final BigDecimal zinnPartPrice = zinnPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_ZINN_IN_G);
 		final BigDecimal compPartPrice = platinPartPrice.add(goldPartPrice).add(silberPartPrice).add(palladiumPartPrice).add(plasticPartPrice)
-				.add(copperPartPrice).add(aluminiumPartPrice).add(nickelPartPrice).add(zinnPartPrice);
+				.add(kupferPartPrice).add(aluminiumPartPrice).add(nickelPartPrice).add(zinnPartPrice);
 		final BigDecimal complManCost = costManHour.multiply(prodManHour);
 		return (compPartPrice.add(complManCost)).multiply(fixCost);
 	}
 
 	private boolean pricesNotNull() {
-		if (copperPrice == null)
+		if (kupferPrice == null)
 			return false;
 		if (aluminiumPrice == null)
 			return false;
@@ -134,8 +134,8 @@ public class CompanyElectrPartProd extends UntypedActor {
 
 	private void setResourcePrices(ResourceMsgModel rmm) {
 		switch (rmm.getType()) {
-		case "Copper":
-			copperPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
+		case "Kupfer":
+			kupferPrice = StaticVariables.convertToBigDecimal(rmm.getValue());
 			break;
 		case "Aluminium":
 			aluminiumPrice = StaticVariables.convertToBigDecimal(rmm.getValue());

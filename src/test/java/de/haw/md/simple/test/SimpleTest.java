@@ -2,7 +2,6 @@ package de.haw.md.simple.test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +29,9 @@ public class SimpleTest {
 		System.out.println(map.size());
 		map.clear();
 		System.out.println(map.size());
+		System.out.println(new BigDecimal("-5224164.321654").toString());
+		System.out.println(new BigDecimal("-5224164.321654").toPlainString());
+		System.out.println(new BigDecimal("-5224164.321654").toEngineeringString());
 	}
 
 	@Test
