@@ -1,5 +1,9 @@
 package de.haw.md.company.gui.main;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +39,9 @@ import de.haw.md.akka.main.CompanyElectrPartProd;
 import de.haw.md.akka.main.CompanyMobile;
 import de.haw.md.akka.main.CompanyOil;
 import de.haw.md.akka.main.MarketContainer;
+import de.haw.md.akka.main.msg.CompanyShareMsgModel;
 import de.haw.md.akka.main.msg.MarketResponseMsgModel;
+import de.haw.md.akka.main.msg.MarketShareMsgModel;
 import de.haw.md.akka.main.msg.ResourceMsgModel;
 import de.haw.md.sups.CompanyValuesEnum;
 import de.haw.md.sups.GUIChartHelperEnum;
@@ -56,11 +62,9 @@ public class GuiMultiAgentMain extends Application {
 
 	private Map<String, LineChart<Number, Number>> lineChartMap = new HashMap<>();
 
-	private List<XYChart.Series<Number, Number>> companyData = new ArrayList<>();
+	private List<NumberAxis> xAxisList = new ArrayList<>();
 
 	private Timeline animation;
-
-	private NumberAxis xAxis = new NumberAxis();
 
 	private int counter = 0;
 
@@ -94,19 +98,6 @@ public class GuiMultiAgentMain extends Application {
 				final ActorRef publisher = MarketContainer.getInstance().getPublisher(StaticVariables.CHANNEL);
 				system.scheduler().scheduleOnce(Duration.Zero(), publisher, "Tick", system.dispatcher(), publisher);
 				try {
-					// Map<String, MarketResponseMsgModel> marketMap =
-					// MarketContainer.getInstance().getMarket().getMobileMarketResponses();
-					// for (String companyName : marketMap.keySet()) {
-					// final ObservableList<Data<Number, Number>> series =
-					// getSeriesWithName(companyName).getData();
-					// series.add(new XYChart.Data<Number, Number>(counter,
-					// series.size() > 0 ? StaticVariables.convertToBigDecimal(
-					// series.get(series.size() -
-					// 1).getYValue().toString()).add(
-					// StaticVariables.convertToBigDecimal(marketMap.get(companyName).getProfit()))
-					// : StaticVariables.convertToBigDecimal(marketMap
-					// .get(companyName).getProfit())));
-					// }
 					if (counter > 0) {
 						Map<String, ResourceMsgModel> marketMap = MarketContainer.getInstance().getMarket().getResourceMarketResponses();
 						for (String type : marketMap.keySet()) {
@@ -115,14 +106,53 @@ public class GuiMultiAgentMain extends Application {
 							final BigDecimal convertToBigDecimal = StaticVariables.convertToBigDecimal(rmm.getValue());
 							series.add(new XYChart.Data<Number, Number>(counter, convertToBigDecimal));
 						}
+						Map<String, MarketResponseMsgModel> mobileMarktMap = MarketContainer.getInstance().getMarket().getMobileMarketResponses();
+						for (String company : mobileMarktMap.keySet()) {
+							MarketResponseMsgModel mrmm = mobileMarktMap.get(company);
+							for (GUIChartHelperEnum guiChartHelperEnum : GUIChartHelperEnum.getChartElementsWithGroupName("Company")) {
+								final ObservableList<Data<Number, Number>> series = chartSeriesMap.get(mrmm.getCompany() + "_" + guiChartHelperEnum.getName())
+										.getData();
+								Class<?> mrmmClass = mrmm.getClass();
+								try {
+									PropertyDescriptor pd = new PropertyDescriptor(guiChartHelperEnum.getMethodName(), mrmmClass);
+									Method getter = pd.getReadMethod();
+									String value = (String) getter.invoke(mrmm);
+									BigDecimal convertToBigDecimal = StaticVariables.convertToBigDecimal(value);
+									if (series.size() > 0 && guiChartHelperEnum.getMethodName().equals("profit"))
+										convertToBigDecimal = StaticVariables.convertToBigDecimal(series.get(series.size() - 1).getYValue().toString()).add(
+												convertToBigDecimal);
+									series.add(new XYChart.Data<Number, Number>(counter, convertToBigDecimal));
+								} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+										| IntrospectionException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+						MarketShareMsgModel msmm = MarketContainer.getInstance().getMarket().getMsmm();
+						if (msmm != null) {
+							for (int i = 0; i < MOBILE_FACTORIES; i++) {
+								final String companyName = "Company_Mobile_" + i;
+								BigDecimal csmmShareValue = BigDecimal.ZERO;
+								final CompanyShareMsgModel csmm = msmm.findShareByCompanyName(companyName);
+								if (csmm != null)
+									csmmShareValue = StaticVariables.convertToBigDecimal(csmm.getShareValue());
+								final ObservableList<Data<Number, Number>> series = chartSeriesMap.get(companyName + "_share").getData();
+								series.add(new XYChart.Data<Number, Number>(counter, csmmShareValue));
+							}
+						}
 					}
 					counter++;
-					if (counter - 2 >= xAxis.getUpperBound()) {
-						xAxis.setUpperBound(xAxis.getUpperBound() + 1);
-						xAxis.setLowerBound(xAxis.getLowerBound() + 1);
-					}
+					if (counter - 2 >= xAxisList.get(0).getUpperBound())
+						setNewBoundsForAllAxis();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
+				}
+			}
+
+			private void setNewBoundsForAllAxis() {
+				for (NumberAxis xAxis : xAxisList) {
+					xAxis.setUpperBound(xAxis.getUpperBound() + 1);
+					xAxis.setLowerBound(xAxis.getLowerBound() + 1);
 				}
 			}
 		}));
@@ -143,23 +173,55 @@ public class GuiMultiAgentMain extends Application {
 
 	private List<Node> createChartNodes() {
 		List<Node> chartList = new ArrayList<>();
-		xAxis = new NumberAxis();
-		xAxis.setAutoRanging(false);
-		xAxis.setLowerBound(0);
-		xAxis.setUpperBound(100);
 		chartList.add(createResourceChart("Oil"));
 		chartList.add(createResourceChart("Metall"));
 		chartList.add(createResourceChart("Edelmetalle"));
+		chartList.addAll(createMobileCompanyCharts());
+		chartList.add(createMarketShareChart());
 		return chartList;
 	}
-	
-	private List<Node> createMobileCompanyCharts(){
+
+	private Node createMarketShareChart() {
+		LineChart<Number, Number> lineChart = createNewSimpleLineChart(GUIChartHelperEnum.MARKET_SHARES.getName());
+		lineChart.getData().addAll(createShareXYSeries());
+		lineChartMap.put(GUIChartHelperEnum.MARKET_SHARES.getName(), lineChart);
+		return lineChart;
+	}
+
+	private List<Series<Number, Number>> createShareXYSeries() {
+		List<XYChart.Series<Number, Number>> seriesList = new ArrayList<>();
+		for (int i = 0; i < MOBILE_FACTORIES; i++) {
+			final String seriesName = "Company_Mobile_" + i;
+			Series<Number, Number> series = new XYChart.Series<>();
+			series.setName(seriesName);
+			seriesList.add(series);
+			chartSeriesMap.put("Company_Mobile_" + i + "_share", series);
+		}
+		return seriesList;
+	}
+
+	private List<Node> createMobileCompanyCharts() {
 		List<Node> companyCharts = new ArrayList<>();
 		for (GUIChartHelperEnum guiChartHelperEnum : GUIChartHelperEnum.getChartElementsWithGroupName("Company")) {
-			LineChart<Number, Number> lineChart = createNewSimpleLineChart(guiChartHelperEnum.getName());
-			
+			final String name = guiChartHelperEnum.getName();
+			LineChart<Number, Number> lineChart = createNewSimpleLineChart(name);
+			lineChart.getData().addAll(createMobileXYSeries(name));
+			lineChartMap.put(name, lineChart);
+			companyCharts.add(lineChart);
 		}
 		return companyCharts;
+	}
+
+	private List<Series<Number, Number>> createMobileXYSeries(String name) {
+		List<XYChart.Series<Number, Number>> seriesList = new ArrayList<>();
+		for (int i = 0; i < MOBILE_FACTORIES; i++) {
+			final String seriesName = "Company_Mobile_" + i;
+			Series<Number, Number> series = new XYChart.Series<>();
+			series.setName(seriesName);
+			seriesList.add(series);
+			chartSeriesMap.put("Company_Mobile_" + i + "_" + name, series);
+		}
+		return seriesList;
 	}
 
 	private Node createResourceChart(String group) {
@@ -168,9 +230,16 @@ public class GuiMultiAgentMain extends Application {
 		lineChartMap.put(group, lineChart);
 		return lineChart;
 	}
-	
-	private LineChart<Number, Number> createNewSimpleLineChart(String title){
+
+	private LineChart<Number, Number> createNewSimpleLineChart(String title) {
 		NumberAxis yAxis = new NumberAxis();
+		yAxis.setLabel(GUIChartHelperEnum.getIdetifierByName(title));
+		NumberAxis xAxis = new NumberAxis();
+		xAxis.setAutoRanging(false);
+		xAxis.setLowerBound(0);
+		xAxis.setUpperBound(100);
+		xAxis.setLabel("Vergangene Zeit in Tagen");
+		xAxisList.add(xAxis);
 		LineChart<Number, Number> lineChart = new LineChart<Number, Number>(xAxis, yAxis);
 		lineChart.setTitle(title);
 		lineChart.setMinWidth(SCREEN_X);
@@ -241,6 +310,13 @@ public class GuiMultiAgentMain extends Application {
 		for (String lineChartMapKey : lineChartMap.keySet())
 			lineChartMap.get(lineChartMapKey).setVisible(false);
 		lineChartMap.get(groupName).setVisible(true);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public void stop() {
+		System.out.println("Window Closed");
+		ActorSystemContainer.getInstance().getSystem().shutdown();
 	}
 
 }

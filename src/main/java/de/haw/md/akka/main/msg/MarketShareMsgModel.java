@@ -48,5 +48,12 @@ public class MarketShareMsgModel {
 	public void setType(String type) {
 		this.type = type;
 	}
+	
+	public CompanyShareMsgModel findShareByCompanyName(String name){
+		for (CompanyShareMsgModel companyShareMsgModel : companyShareMsgModels) 
+			if(companyShareMsgModel.getCompany().equals(name))
+				return companyShareMsgModel;
+		return null;
+	}
 
 }

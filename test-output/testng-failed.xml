@@ -5,7 +5,7 @@
     <classes>
       <class name="de.haw.md.simple.test.SimpleTest">
         <methods>
-          <include name="simpleTest"/>
+          <include name="reflectionTest"/>
         </methods>
       </class> <!-- de.haw.md.simple.test.SimpleTest -->
     </classes>

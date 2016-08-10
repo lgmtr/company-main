@@ -48,7 +48,7 @@
               <ul>
                 <li>
                   <a href="#" class="navigator-link " panel-name="test-xml-Default_suite">
-                    <span>C:\Users\jbr\AppData\Local\Temp\testng-eclipse--124645333\testng-customsuite.xml</span>
+                    <span>C:\Users\jbr\AppData\Local\Temp\testng-eclipse--607076025\testng-customsuite.xml</span>
                   </a> <!-- navigator-link  -->
                 </li>
                 <li>
@@ -101,7 +101,7 @@
                     <div class="method-list-content passed suite-Default_suite">
                       <span>
                         <img width="3%" src="passed.png"/>
-                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="de.haw.md.simple.test.SimpleTest" hash-for-method="simpleTest">simpleTest</a> <!-- method navigator-link -->
+                        <a href="#" class="method navigator-link" panel-name="suite-Default_suite" title="de.haw.md.simple.test.SimpleTest" hash-for-method="reflectionTest">reflectionTest</a> <!-- method navigator-link -->
                       </span>
                       <br/>
                     </div> <!-- method-list-content passed suite-Default_suite -->
@@ -124,9 +124,9 @@
             <div class="main-panel-content rounded-window-bottom">
               <div class="method">
                 <div class="method-content">
-                  <a name="simpleTest">
-                  </a> <!-- simpleTest -->
-                  <span class="method-name">simpleTest</span>
+                  <a name="reflectionTest">
+                  </a> <!-- reflectionTest -->
+                  <span class="method-name">reflectionTest</span>
                 </div> <!-- method-content -->
               </div> <!-- method -->
             </div> <!-- main-panel-content rounded-window-bottom -->
@@ -134,7 +134,7 @@
         </div> <!-- panel Default_suite -->
         <div panel-name="test-xml-Default_suite" class="panel">
           <div class="main-panel-header rounded-window-top">
-            <span class="header-content">C:\Users\jbr\AppData\Local\Temp\testng-eclipse--124645333\testng-customsuite.xml</span>
+            <span class="header-content">C:\Users\jbr\AppData\Local\Temp\testng-eclipse--607076025\testng-customsuite.xml</span>
           </div> <!-- main-panel-header rounded-window-top -->
           <div class="main-panel-content rounded-window-bottom">
             <pre>
@@ -145,7 +145,7 @@
     &lt;classes&gt;
       &lt;class name=&quot;de.haw.md.simple.test.SimpleTest&quot;&gt;
         &lt;methods&gt;
-          &lt;include name=&quot;simpleTest&quot;/&gt;
+          &lt;include name=&quot;reflectionTest&quot;/&gt;
         &lt;/methods&gt;
       &lt;/class&gt; &lt;!-- de.haw.md.simple.test.SimpleTest --&gt;
     &lt;/classes&gt;
@@ -189,14 +189,14 @@ data.addColumn('string', 'Class');
 data.addColumn('number', 'Time (ms)');
 data.addRows(1);
 data.setCell(0, 0, 0)
-data.setCell(0, 1, 'simpleTest')
+data.setCell(0, 1, 'reflectionTest')
 data.setCell(0, 2, 'de.haw.md.simple.test.SimpleTest')
-data.setCell(0, 3, 9);
+data.setCell(0, 3, 15);
 window.suiteTableData['Default_suite']= { tableData: data, tableDiv: 'times-div-Default_suite'}
 return data;
 }
               </script>
-              <span class="suite-total-time">Total running time: 9 ms</span>
+              <span class="suite-total-time">Total running time: 15 ms</span>
               <div id="times-div-Default_suite">
               </div> <!-- times-div-Default_suite -->
             </div> <!-- times-div -->
@@ -211,7 +211,7 @@ return data;
         </div> <!-- panel -->
         <div panel-name="ignored-methods-Default_suite" class="panel">
           <div class="main-panel-header rounded-window-top">
-            <span class="header-content">6 ignored methods</span>
+            <span class="header-content">7 ignored methods</span>
           </div> <!-- main-panel-header rounded-window-top -->
           <div class="main-panel-content rounded-window-bottom">
             <div class="ignored-class-div">
@@ -224,6 +224,8 @@ return data;
                 <span class="ignored-method-name">mapToJson</span>
                 <br/>
                 <span class="ignored-method-name">compareToTest</span>
+                <br/>
+                <span class="ignored-method-name">simpleTest</span>
                 <br/>
                 <span class="ignored-method-name">resourcesAllNextTest</span>
                 <br/>
@@ -241,7 +243,7 @@ return data;
             <div class="chronological-class">
               <div class="chronological-class-name">de.haw.md.simple.test.SimpleTest</div> <!-- chronological-class-name -->
               <div class="test-method">
-                <span class="method-name">simpleTest</span>
+                <span class="method-name">reflectionTest</span>
                 <span class="method-start">0 ms</span>
               </div> <!-- test-method -->
           </div> <!-- main-panel-content rounded-window-bottom -->

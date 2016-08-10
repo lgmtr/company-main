@@ -48,6 +48,8 @@ public class Market extends UntypedActor {
 	private BigDecimal counter = BigDecimal.ZERO;
 
 	private BigDecimal currentMarketVolume;
+	
+	private MarketShareMsgModel msmm;
 
 	public Market(String channel) {
 		res.readAllPrices();
@@ -167,6 +169,7 @@ public class Market extends UntypedActor {
 		msmm.setType("Market_Share");
 		msmm.setCompanyShareMsgModels(companyShareMsgModels);
 		msmm.setDate(ResourceCalc.getFinalDate(res.getOilPrice()).toString(StaticVariables.DE_DATE_FORMATTER));
+		this.msmm = msmm;
 		return om.writeValueAsString(msmm);
 	}
 
@@ -230,6 +233,10 @@ public class Market extends UntypedActor {
 
 	public Map<String, ResourceMsgModel> getResourceMarketResponses() {
 		return resourceMarketResponses;
+	}
+
+	public MarketShareMsgModel getMsmm() {
+		return msmm;
 	}
 
 }

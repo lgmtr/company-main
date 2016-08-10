@@ -1,6 +1,10 @@
 package de.haw.md.simple.test;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,6 +18,7 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.haw.md.akka.main.msg.CompanyShareMsgModel;
+import de.haw.md.akka.main.msg.MarketResponseMsgModel;
 import de.haw.md.akka.main.msg.ResourceMsgModel;
 import de.haw.md.sups.ResourceCalc;
 import de.haw.md.sups.Resources;
@@ -117,6 +122,16 @@ public class SimpleTest {
 			System.out.println(companyShareMsgModel.getShareValue());
 		}
 
+	}
+	
+	@Test
+	public void reflectionTest() throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+		MarketResponseMsgModel mrmm = new MarketResponseMsgModel();
+		mrmm.setProfit("123");
+		final Class<? extends MarketResponseMsgModel> class1 = mrmm.getClass();
+		PropertyDescriptor pd = new PropertyDescriptor("profit", class1);
+		Method getter = pd.getReadMethod();
+		System.out.println(getter.invoke(mrmm));
 	}
 
 }
