@@ -53,8 +53,8 @@ public class GuiMultiAgentMain extends Application {
 	private static final double SCREEN_X = 1280;
 	private static final double SCREEN_Y = 900;
 
-	private static final int ELECTRO_PART_FACTORIES = 7;
-	private static final int MOBILE_FACTORIES = 15;
+	private static final int ELECTRO_PART_FACTORIES = 3;
+	private static final int MOBILE_FACTORIES = 5;
 
 	private static final long SEQUENCE_DURATION = 750;
 

@@ -48,9 +48,15 @@ public class Market extends UntypedActor {
 	private BigDecimal counter = BigDecimal.ZERO;
 
 	private BigDecimal currentMarketVolume;
-	
+
 	private MarketShareMsgModel msmm;
 
+	/**
+	 * Kunstruktor! Initialisiert den Markt, liest historische Rohstoffpreise
+	 * und berechnet das statische Marktvolumen
+	 * 
+	 * @param channel
+	 */
 	public Market(String channel) {
 		res.readAllPrices();
 		this.channel = channel;
@@ -58,6 +64,15 @@ public class Market extends UntypedActor {
 		MarketContainer.getInstance().setMarket(this);
 	}
 
+	/*
+	 * Diese Methode reagiert auf ankommende Nachrichten, sollte die Nachricht
+	 * "Tick" sein, so werden die aktuellen Rohstoffpreise veröffentlicht und
+	 * die aktuellen Marktvolumina.
+	 * 
+	 * (non-Javadoc)
+	 * 
+	 * @see akka.actor.UntypedActor#onReceive(java.lang.Object)
+	 */
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		if (msg instanceof String) {
@@ -68,12 +83,21 @@ public class Market extends UntypedActor {
 				handleMarketResponse(msg, new ObjectMapper());
 				handleResourceResponse(msg, new ObjectMapper());
 			}
-			// System.out.println(msg);
 		} else {
 			unhandled(msg);
 		}
 	}
 
+	/**
+	 * Speichert die Rohstoff-Nachrichten ab. Diese werden dann von der GUI
+	 * ausgelesen.
+	 * 
+	 * @param msg
+	 * @param om
+	 * @throws IOException
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 */
 	private void handleResourceResponse(Object msg, ObjectMapper om) throws IOException, JsonParseException, JsonMappingException {
 		try {
 			ResourceMsgModel rmm = om.readValue((String) msg, ResourceMsgModel.class);
@@ -85,6 +109,16 @@ public class Market extends UntypedActor {
 		}
 	}
 
+	/**
+	 * Speichert die Markt-Nachrichten ab. Diese werden dann von der GUI
+	 * ausgelesen.
+	 * 
+	 * @param msg
+	 * @param om
+	 * @throws IOException
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 */
 	private void handleMarketResponse(Object msg, ObjectMapper om) throws IOException, JsonParseException, JsonMappingException {
 		try {
 			MarketResponseMsgModel mrmm = om.readValue((String) msg, MarketResponseMsgModel.class);
@@ -106,6 +140,18 @@ public class Market extends UntypedActor {
 		}
 	}
 
+	/**
+	 * Das Marktvolumen wird an dieser Stelle berechnet. Volume =
+	 * Gesammt_Markt_Volume / (Zähler / (länge_des_Monats))
+	 * 
+	 * Anschliessend werden die Marktanteile der einzelnen Unternehmen
+	 * berechnet.
+	 * 
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 * @throws CloneNotSupportedException
+	 */
 	private void calculateMarketVolumeAShares() throws JsonGenerationException, JsonMappingException, IOException, CloneNotSupportedException {
 		if (counter.compareTo(BigDecimal.ZERO) != 0) {
 			final BigDecimal volume = StaticVariables.MARKET_VOLUME.divide(counter.divide(StaticVariables.MONTH, 10, RoundingMode.HALF_UP), 0,
@@ -117,13 +163,18 @@ public class Market extends UntypedActor {
 		}
 		if (companyMarketPrices.size() > 0) {
 			final String generateShares = generateShares();
-			// System.out.println(generateShares);
 			publish(generateShares);
 		}
 		counter = counter.add(BigDecimal.ONE);
-		// System.out.println("");
 	}
 
+	/**
+	 * Hier werden die Rohstoffe im Markt veröffentlicht
+	 * 
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	private void publishResources() throws JsonGenerationException, JsonMappingException, IOException {
 		final String resOilMsg = mapToJson("Oil", res.getOilPrice());
 		publish(resOilMsg);
@@ -145,18 +196,37 @@ public class Market extends UntypedActor {
 		publish(resZinnMsg);
 	}
 
+	/**
+	 * Hier werden die Marktanteile der Unternehmen berechnet. Dabei bestehen
+	 * die Marktanteile aus einem fixen und einem variablen Teil.
+	 * 
+	 * @return
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 * @throws CloneNotSupportedException
+	 */
 	private String generateShares() throws JsonGenerationException, JsonMappingException, IOException, CloneNotSupportedException {
 		ObjectMapper om = new ObjectMapper();
+		// Fixe Anteile pro Unternehmen = FIXED_MARKET_SHARE /
+		// Anzahl_der_Unternehmen
 		BigDecimal fixedMarketSharePerCompany = StaticVariables.FIXED_MARKET_SHARE.divide(new BigDecimal(companyMarketPrices.size()), RoundingMode.HALF_DOWN);
 		BigDecimal sumPrice = BigDecimal.ZERO;
+		// Variabler Anteil in Prozent = 100 - FIXED_MARKET_SHARE
 		BigDecimal variableShare = StaticVariables.HUNDRED.subtract(StaticVariables.FIXED_MARKET_SHARE);
 		List<CompanyShareMsgModel> companyShareMsgModels = new ArrayList<>();
+		// Alle Preise von Unternehmen werden auf addiert. Damit der prozentuale
+		// Anteil am Preis bestimmt werden kann.
 		for (String company : companyMarketPrices.keySet())
 			sumPrice = sumPrice.add(companyMarketPrices.get(company));
 		for (String company : companyMarketPrices.keySet()) {
+			// Berechnung erfolgt nur wenn ein Unternehmen noch am Markt ist, also Verkaufspreis > 0
 			if (companyMarketPrices.get(company).compareTo(BigDecimal.ZERO) != 0) {
+				// sumPriceOnePercent = sumPrice / 100 
 				BigDecimal sumPriceOnePercent = sumPrice.divide(StaticVariables.HUNDRED, 10, RoundingMode.HALF_DOWN);
+				// percentPerPrice = companyMarketPrice / sumPriceOnePercent
 				BigDecimal percentPerPrice = companyMarketPrices.get(company).divide(sumPriceOnePercent, 10, RoundingMode.HALF_DOWN);
+				// 
 				BigDecimal variableShareOnePercent = variableShare.divide(StaticVariables.HUNDRED, 10, RoundingMode.HALF_DOWN);
 				BigDecimal variableSharePerComp = percentPerPrice.multiply(variableShareOnePercent);
 				BigDecimal perCompMarketShare = (fixedMarketSharePerCompany.add(variableSharePerComp));

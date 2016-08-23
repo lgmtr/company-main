@@ -44,10 +44,10 @@ public class CompanyMobile extends UntypedActor {
 	private static final BigDecimal POP_ALUMINIUM_IN_G = StaticVariables.convertToBigDecimal("1.3");
 	private static final BigDecimal POP_NICKEL_IN_G = StaticVariables.convertToBigDecimal("1.3");
 	private static final BigDecimal POP_ZINN_IN_G = StaticVariables.convertToBigDecimal("1.3");
-	private static final BigDecimal POP_GOLD_IN_G = StaticVariables.convertToBigDecimal("0.0005");
-	private static final BigDecimal POP_SILBER_IN_G = StaticVariables.convertToBigDecimal("0.0005");
-	private static final BigDecimal POP_PLATIN_IN_G = StaticVariables.convertToBigDecimal("0.0005");
-	private static final BigDecimal POP_PALLADIUM_IN_G = StaticVariables.convertToBigDecimal("0.0005");
+	private static final BigDecimal POP_GOLD_IN_G = StaticVariables.convertToBigDecimal("0.004");
+	private static final BigDecimal POP_SILBER_IN_G = StaticVariables.convertToBigDecimal("0.05");
+	private static final BigDecimal POP_PLATIN_IN_G = StaticVariables.convertToBigDecimal("0.004");
+	private static final BigDecimal POP_PALLADIUM_IN_G = StaticVariables.convertToBigDecimal("0.002");
 
 	private BigDecimal costManHour;
 	private BigDecimal prodManHour;
@@ -188,10 +188,10 @@ public class CompanyMobile extends UntypedActor {
 	}
 
 	private BigDecimal calculateProdPrice(BigDecimal shareVolume) {
-		final BigDecimal platinPartPrice = platinPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_PLATIN_IN_G);
-		final BigDecimal goldPartPrice = goldPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_GOLD_IN_G);
-		final BigDecimal silberPartPrice = silberPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_SILBER_IN_G);
-		final BigDecimal palladiumPartPrice = palladiumPrice.multiply(StaticVariables.OZ_TO_GRAMM).multiply(POP_PALLADIUM_IN_G);
+		final BigDecimal platinPartPrice = platinPrice.divide(StaticVariables.OZ_TO_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_PLATIN_IN_G);
+		final BigDecimal goldPartPrice = goldPrice.divide(StaticVariables.OZ_TO_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_GOLD_IN_G);
+		final BigDecimal silberPartPrice = silberPrice.divide(StaticVariables.OZ_TO_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_SILBER_IN_G);
+		final BigDecimal palladiumPartPrice = palladiumPrice.divide(StaticVariables.OZ_TO_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_PALLADIUM_IN_G);
 		final BigDecimal plasticPartPrice = plasticPrice.divide(StaticVariables.KG_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_PLASTIC_IN_G);
 		final BigDecimal kupferPartPrice = kupferPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_KUPFER_IN_G);
 		final BigDecimal aluminiumPartPrice = aluminiumPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_ALUMINIUM_IN_G);
