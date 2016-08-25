@@ -6,8 +6,8 @@ public enum CompanyValuesEnum {
 
 	COST_MAN_HOUR(new BigDecimal("20"), new BigDecimal("40"), true),
 	PROD_MAN_HOUR(new BigDecimal("2"), new BigDecimal("4"), false),
-	BONUS(new BigDecimal("1.2"), new BigDecimal("1.4"), false),
-	SUPPLIER_DISCOUNT(new BigDecimal("1.03"), new BigDecimal("1.1"), false),
+	BONUS(new BigDecimal("1.6"), new BigDecimal("1.9"), false),
+	SUPPLIER_DISCOUNT(new BigDecimal("1.1"), new BigDecimal("1.3"), false),
 	FIX_COST(new BigDecimal("5000000"), new BigDecimal("7000000"), false),
 	PRODUCTION_LINES(new BigDecimal("4"), new BigDecimal("7"), true),
 	PRODUCTION_LINES_CAP(new BigDecimal("3000"), new BigDecimal("4000"), true),

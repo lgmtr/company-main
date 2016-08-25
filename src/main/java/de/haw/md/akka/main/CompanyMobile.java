@@ -200,7 +200,7 @@ public class CompanyMobile extends UntypedActor {
 		final BigDecimal compPartWOSupPrice = platinPartPrice.add(goldPartPrice).add(silberPartPrice).add(palladiumPartPrice).add(plasticPartPrice)
 				.add(kupferPartPrice).add(aluminiumPartPrice).add(nickelPartPrice).add(zinnPartPrice);
 		final BigDecimal supPriceWithDisc = electronicPartPrice.divide(supDiscount, RoundingMode.HALF_UP);
-		final BigDecimal complManCost = costManHour.multiply(prodManHour);
+		final BigDecimal complManCost = costManHour.divide(prodManHour, RoundingMode.HALF_DOWN);
 		final BigDecimal numberOfProdLines = shareVolume.divide(productionLineCapacity, 0, RoundingMode.UP);
 		BigDecimal prodLinesCost;
 		if (numberOfProdLines.compareTo(productionLines) > 0) {
@@ -208,7 +208,8 @@ public class CompanyMobile extends UntypedActor {
 			prodLinesCost = fixCost.divide(selledProducts, 2, RoundingMode.HALF_UP);
 		} else {
 			selledProducts = shareVolume;
-			prodLinesCost = fixCost.divide(numberOfProdLines, 2, RoundingMode.HALF_UP).divide(selledProducts, 2, RoundingMode.HALF_UP);
+			final BigDecimal costOfOne = fixCost.divide(productionLines, 2, RoundingMode.HALF_UP);
+			prodLinesCost = costOfOne.multiply(numberOfProdLines).divide(selledProducts, 2, RoundingMode.HALF_UP);
 		}
 		return (compPartWOSupPrice.add(complManCost).add(supPriceWithDisc)).add(prodLinesCost);
 	}

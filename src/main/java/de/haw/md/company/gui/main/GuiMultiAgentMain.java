@@ -53,8 +53,8 @@ public class GuiMultiAgentMain extends Application {
 	private static final double SCREEN_X = 1280;
 	private static final double SCREEN_Y = 900;
 
-	private static final int ELECTRO_PART_FACTORIES = 3;
-	private static final int MOBILE_FACTORIES = 5;
+	private static final int ELECTRO_PART_FACTORIES = 7;
+	private static final int MOBILE_FACTORIES = 15;
 
 	private static final long SEQUENCE_DURATION = 750;
 
@@ -78,7 +78,7 @@ public class GuiMultiAgentMain extends Application {
 							StaticVariables.generateRandomBigDecimalFromRange(new BigDecimal("15"), new BigDecimal("30")),
 							StaticVariables.generateRandomBigDecimalFromRange(new BigDecimal("1.20"), new BigDecimal("1.30")),
 							StaticVariables.generateRandomBigDecimalFromRange(new BigDecimal("1.2"), new BigDecimal("1.7")),
-							StaticVariables.generateRandomBigDecimalFromRange(new BigDecimal("1.05"), new BigDecimal("1.2"))), "Company_ElectroPart_" + i);
+							StaticVariables.generateRandomBigDecimalFromRange(new BigDecimal("1.6"), new BigDecimal("1.9"))), "Company_ElectroPart_" + i);
 		for (int i = 0; i < MOBILE_FACTORIES; i++)
 			system.actorOf(Props.create(CompanyMobile.class, StaticVariables.CHANNEL, "Company_Mobile_" + i, CompanyValuesEnum.COST_MAN_HOUR.getRandomValue(),
 					CompanyValuesEnum.PROD_MAN_HOUR.getRandomValue(), CompanyValuesEnum.BONUS.getRandomValue(), "Company_ElectroPart_" + i

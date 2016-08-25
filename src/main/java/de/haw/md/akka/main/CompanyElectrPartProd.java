@@ -101,7 +101,7 @@ public class CompanyElectrPartProd extends UntypedActor {
 		final BigDecimal zinnPartPrice = zinnPrice.divide(StaticVariables.T_IN_GRAMM, RoundingMode.HALF_DOWN).multiply(POP_ZINN_IN_G);
 		final BigDecimal compPartPrice = platinPartPrice.add(goldPartPrice).add(silberPartPrice).add(palladiumPartPrice).add(plasticPartPrice)
 				.add(kupferPartPrice).add(aluminiumPartPrice).add(nickelPartPrice).add(zinnPartPrice);
-		final BigDecimal complManCost = costManHour.multiply(prodManHour);
+		final BigDecimal complManCost = costManHour.divide(prodManHour, RoundingMode.HALF_DOWN);
 		return (compPartPrice.add(complManCost)).multiply(fixCost);
 	}
 
