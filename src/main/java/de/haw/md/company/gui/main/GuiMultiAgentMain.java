@@ -48,15 +48,16 @@ import de.haw.md.sups.GUIChartHelperEnum;
 import de.haw.md.sups.GUIMenueItemsEnum;
 import de.haw.md.sups.StaticVariables;
 
+@SuppressWarnings("restriction")
 public class GuiMultiAgentMain extends Application {
 
-	private static final double SCREEN_X = 1280;
-	private static final double SCREEN_Y = 900;
+	private static final double SCREEN_X = 1900;
+	private static final double SCREEN_Y = 1100;
 
 	private static final int ELECTRO_PART_FACTORIES = 7;
 	private static final int MOBILE_FACTORIES = 15;
 
-	private static final long SEQUENCE_DURATION = 750;
+	private static final long SEQUENCE_DURATION = 1000;
 
 	private Map<String, XYChart.Series<Number, Number>> chartSeriesMap = new HashMap<>();
 
@@ -237,7 +238,7 @@ public class GuiMultiAgentMain extends Application {
 		NumberAxis xAxis = new NumberAxis();
 		xAxis.setAutoRanging(false);
 		xAxis.setLowerBound(0);
-		xAxis.setUpperBound(100);
+		xAxis.setUpperBound(365);
 		xAxis.setLabel("Vergangene Zeit in Tagen");
 		xAxisList.add(xAxis);
 		LineChart<Number, Number> lineChart = new LineChart<Number, Number>(xAxis, yAxis);

@@ -16,6 +16,7 @@ import javafx.scene.control.ToolBar;
 import javafx.stage.Stage;
 import de.haw.md.company.main.CompanyMainTwo;
 
+@SuppressWarnings("restriction")
 public class GuiMain extends Application {
 
 	private static final double SCREEN_X = 1280;

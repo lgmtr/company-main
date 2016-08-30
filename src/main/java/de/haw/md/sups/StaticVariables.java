@@ -13,6 +13,7 @@ public class StaticVariables {
 	
 	//Helper statics
 	public final static BigDecimal MONTH = new BigDecimal("30");
+	public final static BigDecimal FIFTY = new BigDecimal("50");
 	public final static BigDecimal HUNDRED = new BigDecimal("100");
 	
 	//Converting statics

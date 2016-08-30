@@ -15,8 +15,6 @@ public class CompanyMain {
 
 	private List<BigDecimal> saettigung;
 
-	private List<BigDecimal> lieferbarkeit;
-
 	private List<BigDecimal> produktion;
 
 	private List<BigDecimal> lagerbestand;

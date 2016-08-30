@@ -152,6 +152,7 @@ public class CompanyMobile extends UntypedActor {
 								mrmm.setProductionCost(BigDecimal.ZERO.toString());
 							ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
 							publisher.tell(om.writeValueAsString(mrmm), getSelf());
+							System.out.println("Company: " + this.nameOfSubscriber + "/ Profit: " + mrmm.getRevenue());
 						}
 					}
 				} catch (UnrecognizedPropertyException e) {
@@ -170,7 +171,7 @@ public class CompanyMobile extends UntypedActor {
 				return newPrice;
 			}
 			adjustment = adjustment.add(StaticVariables.PRICE_ADJUSTMENT);
-		} while (newPrice.compareTo(prodPrice) > 0 || adjustment.compareTo(bonus.multiply(new BigDecimal(2))) <= 0);
+		} while (newPrice.compareTo(prodPrice.multiply(new BigDecimal("1.02"))) > 0 || adjustment.compareTo(bonus.multiply(new BigDecimal(2))) <= 0);
 		return BigDecimal.ZERO;
 	}
 
