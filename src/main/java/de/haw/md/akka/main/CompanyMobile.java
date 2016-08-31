@@ -152,7 +152,6 @@ public class CompanyMobile extends UntypedActor {
 								mrmm.setProductionCost(BigDecimal.ZERO.toString());
 							ActorRef publisher = MarketContainer.getInstance().getPublisher(channel);
 							publisher.tell(om.writeValueAsString(mrmm), getSelf());
-							System.out.println("Company: " + this.nameOfSubscriber + "/ Profit: " + mrmm.getRevenue());
 						}
 					}
 				} catch (UnrecognizedPropertyException e) {

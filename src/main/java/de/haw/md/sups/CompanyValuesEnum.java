@@ -11,7 +11,7 @@ public enum CompanyValuesEnum {
 	FIX_COST(new BigDecimal("5000000"), new BigDecimal("7000000"), false),
 	PRODUCTION_LINES(new BigDecimal("4"), new BigDecimal("7"), true),
 	PRODUCTION_LINES_CAP(new BigDecimal("3000"), new BigDecimal("4000"), true),
-	MONTHLY_COSTS(new BigDecimal("30000000"), new BigDecimal("60000000"), false);
+	MONTHLY_COSTS(new BigDecimal("10000000"), new BigDecimal("30000000"), false);
 	
 	private BigDecimal min;
 	private BigDecimal max;

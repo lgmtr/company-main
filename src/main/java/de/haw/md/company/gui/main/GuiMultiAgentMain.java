@@ -51,8 +51,8 @@ import de.haw.md.sups.StaticVariables;
 @SuppressWarnings("restriction")
 public class GuiMultiAgentMain extends Application {
 
-	private static final double SCREEN_X = 1900;
-	private static final double SCREEN_Y = 1100;
+	private static final double SCREEN_X = 1600;
+	private static final double SCREEN_Y = 1000;
 
 	private static final int ELECTRO_PART_FACTORIES = 7;
 	private static final int MOBILE_FACTORIES = 15;
