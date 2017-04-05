@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.haw.md.company</groupId>
   <artifactId>company-main</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+=======
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.haw.md.company</groupId>
+  <artifactId>company-main</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+>>>>>>> a63b17902c63202d3859c5399365ac10cada85e8
 </project>
