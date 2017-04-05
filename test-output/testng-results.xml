@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="1" passed="1">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="15" started-at="2016-08-10T12:20:49Z" finished-at="2016-08-10T12:20:49Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="15" started-at="2016-08-10T12:20:49Z" finished-at="2016-08-10T12:20:49Z">
+      <class name="de.haw.md.simple.test.SimpleTest">
+        <test-method status="PASS" signature="reflectionTest()[pri:0, instance:de.haw.md.simple.test.SimpleTest@1ff8b8f]" name="reflectionTest" duration-ms="15" started-at="2016-08-10T14:20:49Z" finished-at="2016-08-10T14:20:49Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- reflectionTest -->
+      </class> <!-- de.haw.md.simple.test.SimpleTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
